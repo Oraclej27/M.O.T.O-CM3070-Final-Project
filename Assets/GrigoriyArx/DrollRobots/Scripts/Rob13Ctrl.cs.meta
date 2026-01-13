@@ -1,0 +1,18 @@
+fileFormatVersion: 2
+guid: e6ca05178f017054a9b93361cec00ddc
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences: []
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 311479
+  packageName: Emo Robot 04
+  packageVersion: 1.0
+  assetPath: Assets/GrigoriyArx/DrollRobots/Scripts/Rob13Ctrl.cs
+  uploadId: 734413

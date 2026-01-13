@@ -1,0 +1,18 @@
+fileFormatVersion: 2
+guid: facf903f9eebc2d4795ce6938449eed7
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences: []
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 311479
+  packageName: Emo Robot 04
+  packageVersion: 1.0
+  assetPath: Assets/GrigoriyArx/DrollRobots/Scripts/Rob13ColorManager.cs
+  uploadId: 734413
