@@ -4335,8 +4335,8 @@ Transform:
   m_GameObject: {fileID: 282730115}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0.99859273, z: -0, w: -0.053034104}
-  m_LocalPosition: {x: -13.6, y: 19.9, z: 57.5}
-  m_LocalScale: {x: 34.220535, y: 33.53323, z: 7.3}
+  m_LocalPosition: {x: -14.53, y: 19.9, z: 66.235}
+  m_LocalScale: {x: 34.220535, y: 33.53323, z: 29.762102}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 1679739032}
@@ -12642,12 +12642,12 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 963194225}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 1ffc853ace7a0074ab88f0e4e394fa72, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  player: {fileID: 0}
+  player: {fileID: 1291473373}
 --- !u!1001 &1060479157
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -13256,6 +13256,11 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 90, z: 0}
+--- !u!1 &1291473373 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 2758169117693266568, guid: db91c2083f8291b4883c000f84cfcec8, type: 3}
+  m_PrefabInstance: {fileID: 1994143226}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1001 &1310499840
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -13895,6 +13900,18 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 1357004444465092113, guid: db91c2083f8291b4883c000f84cfcec8, type: 3}
+      propertyPath: isBattle
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1357004444465092113, guid: db91c2083f8291b4883c000f84cfcec8, type: 3}
+      propertyPath: isRainbowCycles
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1357004444465092113, guid: db91c2083f8291b4883c000f84cfcec8, type: 3}
+      propertyPath: emissionIntensity
+      value: 1.7
+      objectReference: {fileID: 0}
     - target: {fileID: 2758169117693266568, guid: db91c2083f8291b4883c000f84cfcec8, type: 3}
       propertyPath: m_Name
       value: Rob13
@@ -13957,7 +13974,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4833164251284751376, guid: db91c2083f8291b4883c000f84cfcec8, type: 3}
       propertyPath: gravity
-      value: 20
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 4833164251284751376, guid: db91c2083f8291b4883c000f84cfcec8, type: 3}
       propertyPath: fallSpeed
@@ -14115,8 +14132,8 @@ Transform:
   m_GameObject: {fileID: 2079650337}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0.99859273, z: -0, w: -0.053034104}
-  m_LocalPosition: {x: 5.9, y: 19.9, z: 59.6}
-  m_LocalScale: {x: 34.220535, y: 33.53323, z: 7.3}
+  m_LocalPosition: {x: 4.8488, y: 19.9, z: 69.469}
+  m_LocalScale: {x: 34.220535, y: 33.53323, z: 32.67872}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 1677541106}
