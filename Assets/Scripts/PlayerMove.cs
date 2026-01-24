@@ -7,16 +7,12 @@ public class PlayerMove : MonoBehaviour
     float movementSpeed;
     [SerializeField]
     float rotationSpeed;
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
         
     }
-
-    // Update is called once per frame
     void Update()
     {
-        //local variable 
         float movement = Input.GetAxisRaw("Vertical");
         float turn = Input.GetAxisRaw("Horizontal");
 
