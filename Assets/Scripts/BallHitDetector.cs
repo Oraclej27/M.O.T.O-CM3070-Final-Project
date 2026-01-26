@@ -11,8 +11,8 @@ public class BallHitDetector : MonoBehaviour
 
             if (robot != null)
             {
-                Debug.Log("Ball hit robot (physics-based)");
-                robot.RegisterBallHit(transform.position);
+                Debug.Log("Ball hit robot");
+                robot.RegisterBallHit();
             }
         }
     }
