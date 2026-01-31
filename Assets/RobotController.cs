@@ -11,12 +11,16 @@ public class RobotController : MonoBehaviour
     [Header("Debug / Collision")]
     [SerializeField] private int bumpCount;
     [SerializeField] private int ballHitCount;
+    [SerializeField] float ballHitCooldownTime = 0.5f;
+    float ballHitCooldown;
+
     [SerializeField] private float bumpCooldownTime = 0.5f;
     private float bumpCooldown;
 
     [Header("References")]
     public Rob13ColorManager robotColorManager;
     public EmotionChanger emotionChanger;
+    public RobotEmotionCamera cameraController;
 
     [Header("Animation Repeat")]
     public int playCount = 1;
@@ -48,6 +52,10 @@ public class RobotController : MonoBehaviour
     {
         HandleMovement();
         HandleJump();
+
+        if (ballHitCooldown > 0f)
+            ballHitCooldown -= Time.deltaTime;
+
         if (bumpCooldown > 0f)
         {
             bumpCooldown -= Time.deltaTime;
@@ -114,7 +122,8 @@ public class RobotController : MonoBehaviour
         {
             // Safety fallback (most ball hits come from BallHitDetector)
             Debug.Log("BALL HIT via controller");
-            RegisterBallHit();
+            //RegisterBallHit();
+            return;
         }
         else
         {
@@ -139,10 +148,14 @@ public class RobotController : MonoBehaviour
 
         if (bumpCount >= 3)
         {
+            cameraController.FocusOnEmotion();
             anim.SetBool("Angry", true);
             setEmotion(7);
             bumpCount = 0; // reset after angry
             currentState = RobotState.Angry;
+
+            //setEmotion(0);
+            //anim.SetBool("reset", true);
         }
     }
 
@@ -150,6 +163,9 @@ public class RobotController : MonoBehaviour
 
     public void RegisterBallHit()
     {
+        if (ballHitCooldown > 0f) return;
+        ballHitCooldown = ballHitCooldownTime;
+
         if (currentState == RobotState.Fallen) return;
 
         ballHitCount++;
@@ -160,6 +176,7 @@ public class RobotController : MonoBehaviour
         {
             //animationName = "Dance1";
             //robotColorManager.isRainbowCycles = true;
+            cameraController.Shake();
             animationName = "Dance1";
             robotColorManager.isRainbowCycles = true;
             setEmotion(1);
@@ -167,6 +184,9 @@ public class RobotController : MonoBehaviour
         }
         else if (ballHitCount == 2)
         {
+            anim.SetBool("Hit", true);
+            anim.SetInteger("vary", GetNextNumber(3));
+            setEmotion(0);
             anim.SetBool("Cry", true);
             setEmotion(8);
             currentState = RobotState.Crying;
@@ -177,6 +197,9 @@ public class RobotController : MonoBehaviour
             setEmotion(5);
             currentState = RobotState.Fallen;
         }
+        if (ballHitCooldown > 0f) return;
+        ballHitCooldown = ballHitCooldownTime;
+
     }
 
 
