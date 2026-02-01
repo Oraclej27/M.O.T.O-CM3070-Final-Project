@@ -179,13 +179,13 @@ public class RobotController : MonoBehaviour
             cameraController.Shake();
             animationName = "Dance1";
             robotColorManager.isRainbowCycles = true;
-            setEmotion(1);
+            setEmotion(8);
             StartCoroutine(PlayAnimationMultipleTimes());
         }
         else if (ballHitCount == 2)
         {
-            anim.SetBool("Hit", true);
-            anim.SetInteger("vary", GetNextNumber(3));
+            cameraController.Shake();
+            cameraController.FocusOnEmotion();
             setEmotion(0);
             anim.SetBool("Cry", true);
             setEmotion(8);
