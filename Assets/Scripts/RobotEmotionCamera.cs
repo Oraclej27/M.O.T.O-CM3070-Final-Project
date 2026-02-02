@@ -3,241 +3,283 @@ using System.Collections;
 
 public class RobotEmotionCamera : MonoBehaviour
 {
-    [Header("Target")]
+    [System.Serializable]
+    public class CameraState
+    {
+        public Vector3 offset = new Vector3(0, 1.6f, -3f);
+        public float positionSmooth = 8f;
+        public float rotationSmooth = 8f;
+        public bool useFollowYaw = true;
+        public float fov = 60f;
+    }
+
+    [Header("References")]
     public Transform robot;
-    public Transform faceTarget; // optional: empty transform near head
+    public Transform faceTarget; // Should be child of robot at head position
 
-    [Header("Base Follow")]
-    public Vector3 offset = new Vector3(0, 1.6f, -3f);
-    public float followSmooth = 8f;
-    public float rotateSmooth = 8f;
-
-    [Header("Emotion Focus")]
-    public float emotionFocusTime = 0.8f;
-    public float emotionRotateBoost = 2.5f;
-    public float emotionZoomOffset = 0.8f;
-    public Vector3 emotionFrontOffset = new Vector3(0, 1.6f, 2.2f);
+    [Header("Camera States")]
+    public CameraState normalState = new CameraState();
+    public CameraState emotionState = new CameraState()
+    {
+        offset = new Vector3(0, 1.6f, 2.2f),
+        positionSmooth = 12f,
+        rotationSmooth = 12f,
+        useFollowYaw = false,
+        fov = 45f
+    };
 
     [Header("Zoom")]
     public float zoomSpeed = 2f;
     public float minZoom = -5f;
     public float maxZoom = -1.5f;
 
-    //[Header("Collision")]
-    //public float collisionRadius = 0.3f;
-    //public LayerMask collisionMask;
+    [Header("Recenter")]
+    public float recenterSpeed = 4f;
+    public bool autoRecenter = false;
+    public float autoRecenterDelay = 2f;
 
     [Header("Shake")]
     public float shakeDuration = 0.2f;
     public float shakeStrength = 0.15f;
 
-    // INTERNAL
-    private float focusTimer;
-    private bool isFocusingEmotion;
-    private Vector3 currentVelocity;
+    // Private State
+    private Camera cam;
+    private float currentZoom;
+    private float followYaw;
+    private float yawVelocity;
+    private Vector3 positionVelocity;
+    private Quaternion rotationVelocity;
+    private float timeSinceLastInput;
+    private bool isEmotionFocus;
+    private float emotionFocusTimer;
     private Vector3 shakeOffset;
-    private float zoomZ;
+    private float targetFOV;
+    private float fovVelocity;
 
     void Start()
     {
-        zoomZ = offset.z;
+        cam = GetComponent<Camera>();
+        if (!cam) cam = Camera.main;
+
+        currentZoom = normalState.offset.z;
+        followYaw = robot.eulerAngles.y;
+        targetFOV = normalState.fov;
+
+        if (cam) cam.fieldOfView = targetFOV;
     }
 
     void LateUpdate()
     {
-        if (!robot) return;
+        if (!robot || !cam) return;
 
-        HandleZoom();
-        HandleFocusTimer();
+        HandleInput();
+        UpdateZoom();
+        UpdateEmotionTimer();
 
-        // --- OFFSET SELECTION ---
-        Vector3 baseOffset = offset;
-        baseOffset.z = zoomZ;
+        // Get current state settings
+        CameraState state = isEmotionFocus ? emotionState : normalState;
 
-        if (isFocusingEmotion)
-        {
-            baseOffset = robot.rotation * emotionFrontOffset;
-            baseOffset.z -= emotionZoomOffset;
-        }
+        // Update FOV
+        targetFOV = state.fov;
+        cam.fieldOfView = Mathf.SmoothDamp(cam.fieldOfView, targetFOV, ref fovVelocity, 0.3f);
 
-        // --- POSITION ---
-        //Vector3 desiredPos = robot.position + baseOffset;
-        //desiredPos = HandleCollision(desiredPos);
-        Transform posTarget = isFocusingEmotion && faceTarget ? faceTarget : robot;
-        Vector3 desiredPos = posTarget.position + baseOffset;
+        // Calculate desired position
+        Vector3 desiredPosition = CalculateDesiredPosition(state);
 
+        // Apply smooth position
         transform.position = Vector3.SmoothDamp(
             transform.position,
-            desiredPos + shakeOffset,
-            ref currentVelocity,
-            1f / followSmooth
+            desiredPosition + shakeOffset,
+            ref positionVelocity,
+            1f / state.positionSmooth
         );
 
-        // --- ROTATION ---
-        //Transform lookTarget = faceTarget ? faceTarget : robot;
-
-        //float rotateSpeed =
-        //    isFocusingEmotion
-        //    ? rotateSmooth * emotionRotateBoost
-        //    : rotateSmooth;
-
-        //Quaternion lookRot = Quaternion.LookRotation(
-        //    lookTarget.position - transform.position
-        //);
-
-        //if (isFocusingEmotion)
-        //{
-        //    transform.rotation = Quaternion.Slerp(
-        //        transform.rotation,
-        //        lookRot,
-        //        rotateSpeed * Time.deltaTime
-        //    );
-        //}
-        //if (isFocusingEmotion)
-        //{
-        //    Transform lookTarget = faceTarget ? faceTarget : robot;
-
-        //    float rotateSpeed = rotateSmooth * emotionRotateBoost;
-
-        //    Quaternion lookRot = Quaternion.LookRotation(
-        //        lookTarget.position - transform.position
-        //    );
-
-        //    transform.rotation = Quaternion.Slerp(
-        //        transform.rotation,
-        //        lookRot,
-        //        rotateSpeed * Time.deltaTime
-        //    );
-        //}
-        Transform lookTarget = isFocusingEmotion && faceTarget ? faceTarget : robot;
-
-        float rotateSpeed =
-            isFocusingEmotion
-            ? rotateSmooth * emotionRotateBoost
-            : rotateSmooth;
-
-        Quaternion lookRot = Quaternion.LookRotation(
-            lookTarget.position - transform.position
-        );
-
-        transform.rotation = Quaternion.Slerp(
-            transform.rotation,
-            lookRot,
-            rotateSpeed * Time.deltaTime
-        );
+        // Calculate and apply rotation
+        Quaternion desiredRotation = CalculateDesiredRotation(state, desiredPosition);
+        transform.rotation = SmoothDampRotation(transform.rotation, desiredRotation, ref rotationVelocity, 1f / state.rotationSmooth);
     }
 
-    // ---------------- ZOOM ----------------
-
-    //void HandleZoom()
-    //{
-    //    float scroll = Input.mouseScrollDelta.y;
-    //    if (Mathf.Abs(scroll) > 0.01f && !isFocusingEmotion)
-    //    {
-    //        zoomZ += scroll * zoomSpeed;
-    //        zoomZ = Mathf.Clamp(zoomZ, minZoom, maxZoom);
-    //    }
-
-
-    //}
-    void HandleZoom()
+    Vector3 CalculateDesiredPosition(CameraState state)
     {
-        if (isFocusingEmotion) return;
+        Vector3 offset = state.offset;
+        offset.z = currentZoom;
 
-        float zoomInput = 0f;
-
-        // Mouse wheel
-        float scroll = Input.mouseScrollDelta.y;
-        if (Mathf.Abs(scroll) > 0.01f && !isFocusingEmotion)
+        // Apply follow yaw only in normal state when enabled
+        if (state.useFollowYaw)
         {
-            zoomZ += scroll * zoomSpeed;
-            zoomZ = Mathf.Clamp(zoomZ, minZoom, maxZoom);
+            Quaternion yawRotation = Quaternion.Euler(0f, followYaw, 0f);
+            offset = yawRotation * offset;
         }
 
-        // Keyboard fallback
+        // For emotion state, frame the face FROM THE FRONT
+        if (isEmotionFocus && faceTarget)
+        {
+            // KEY FIX: Use robot's forward direction for emotion framing
+            Quaternion faceRotation = Quaternion.LookRotation(-robot.forward); // Look at face FROM front
+            offset = faceRotation * offset;
+            return faceTarget.position + offset;
+        }
+
+        return robot.position + offset;
+    }
+
+    Quaternion CalculateDesiredRotation(CameraState state, Vector3 desiredPosition)
+    {
+        Vector3 lookTargetPosition = (isEmotionFocus && faceTarget) ? faceTarget.position : robot.position;
+        Vector3 lookDirection = lookTargetPosition - desiredPosition;
+
+        // Special handling for emotion focus to avoid weird angles
+        if (isEmotionFocus)
+        {
+            // Keep camera mostly level, just look at face
+            lookDirection.y = Mathf.Clamp(lookDirection.y, -0.3f, 0.3f);
+        }
+
+        return Quaternion.LookRotation(lookDirection);
+    }
+
+    void HandleInput()
+    {
+        // Right-click recenter
+        if (Input.GetMouseButton(1))
+        {
+            float targetYaw = robot.eulerAngles.y;
+            followYaw = Mathf.SmoothDampAngle(followYaw, targetYaw, ref yawVelocity, 1f / recenterSpeed);
+            timeSinceLastInput = 0f;
+        }
+        else if (autoRecenter)
+        {
+            timeSinceLastInput += Time.deltaTime;
+            if (timeSinceLastInput > autoRecenterDelay)
+            {
+                float targetYaw = robot.eulerAngles.y;
+                followYaw = Mathf.SmoothDampAngle(followYaw, targetYaw, ref yawVelocity, 1f / (recenterSpeed * 0.5f));
+            }
+        }
+    }
+
+    void UpdateZoom()
+    {
+        if (isEmotionFocus) return; // No zoom during emotion focus
+
+        float scroll = Input.mouseScrollDelta.y;
+        if (Mathf.Abs(scroll) > 0.01f)
+        {
+            currentZoom += scroll * zoomSpeed;
+            currentZoom = Mathf.Clamp(currentZoom, minZoom, maxZoom);
+            timeSinceLastInput = 0f;
+        }
+
+        // Keyboard zoom fallback
+        float zoomInput = 0f;
         if (Input.GetKey(KeyCode.R)) zoomInput += 1f;
         if (Input.GetKey(KeyCode.F)) zoomInput -= 1f;
 
         if (Mathf.Abs(zoomInput) > 0.01f)
         {
-            zoomZ += zoomInput * zoomSpeed * Time.deltaTime;
-            zoomZ = Mathf.Clamp(zoomZ, minZoom, maxZoom);
+            currentZoom += zoomInput * zoomSpeed * Time.deltaTime;
+            currentZoom = Mathf.Clamp(currentZoom, minZoom, maxZoom);
+            timeSinceLastInput = 0f;
         }
     }
 
-    // ---------------- COLLISION ----------------
-
-    //Vector3 HandleCollision(Vector3 desiredPos)
-    //{
-    //    Vector3 origin = robot.position + Vector3.up * 1.2f;
-    //    Vector3 dir = desiredPos - origin;
-    //    float dist = dir.magnitude;
-
-    //    if (Physics.SphereCast(
-    //        origin,
-    //        collisionRadius,
-    //        dir.normalized,
-    //        out RaycastHit hit,
-    //        dist,
-    //        collisionMask))
-    //    {
-    //        return hit.point - dir.normalized * collisionRadius;
-    //    }
-
-    //    return desiredPos;
-    //}
-
-    // ---------------- EMOTION EVENTS ----------------
-
-    public void FocusOnEmotion()
+    void UpdateEmotionTimer()
     {
-        isFocusingEmotion = true;
-        focusTimer = emotionFocusTime;
-    }
+        if (!isEmotionFocus) return;
 
-
-    //void HandleFocusTimer()
-    //{
-    //    if (!isFocusingEmotion) return;
-
-    //    focusTimer -= Time.deltaTime;
-    //    if (focusTimer <= 0f)
-    //    {
-    //        isFocusingEmotion = false;
-    //    }
-    //}
-    void HandleFocusTimer()
-    {
-        if (!isFocusingEmotion) return;
-
-        focusTimer -= Time.deltaTime;
-        if (focusTimer <= 0f)
+        emotionFocusTimer -= Time.deltaTime;
+        if (emotionFocusTimer <= 0f)
         {
-            isFocusingEmotion = false;
-
-            // IMPORTANT: reset camera momentum
-            //currentVelocity = Vector3.zero;
-            currentVelocity *= 0.2f;
+            isEmotionFocus = false;
+            // Gentle exit from emotion focus
+            positionVelocity *= 0.3f;
         }
     }
 
-    public void Shake()
+    // ----- PUBLIC INTERFACE -----
+
+    public void FocusOnEmotion(float customDuration = 0f)
     {
-        StopAllCoroutines();
-        StartCoroutine(ShakeRoutine());
+        isEmotionFocus = true;
+        emotionFocusTimer = customDuration > 0 ? customDuration : 1.5f; // Default 1.5 seconds
+
+        // Reset velocities for clean transition
+        positionVelocity = Vector3.zero;
+        rotationVelocity = Quaternion.identity;
+        yawVelocity = 0f;
+
+        // Optional: Force camera behind robot after emotion
+        followYaw = robot.eulerAngles.y;
     }
 
-    IEnumerator ShakeRoutine()
+    public void Shake(float strengthMultiplier = 1f)
     {
-        float t = 0f;
+        StopCoroutine(nameof(ShakeRoutine));
+        StartCoroutine(ShakeRoutine(strengthMultiplier));
+    }
 
-        while (t < shakeDuration)
+    IEnumerator ShakeRoutine(float strengthMultiplier = 1f)
+    {
+        float elapsed = 0f;
+        Vector3 originalShakeOffset = shakeOffset;
+
+        while (elapsed < shakeDuration)
         {
-            shakeOffset = Random.insideUnitSphere * shakeStrength;
-            t += Time.deltaTime;
+            // Decaying shake
+            float decay = 1f - (elapsed / shakeDuration);
+            shakeOffset = originalShakeOffset + Random.insideUnitSphere * (shakeStrength * strengthMultiplier * decay);
+            elapsed += Time.deltaTime;
             yield return null;
         }
 
         shakeOffset = Vector3.zero;
+    }
+
+    // ----- HELPER METHODS -----
+
+    static Quaternion SmoothDampRotation(Quaternion current, Quaternion target, ref Quaternion velocity, float smoothTime)
+    {
+        if (Time.deltaTime < Mathf.Epsilon) return current;
+
+        var dot = Quaternion.Dot(current, target);
+        var sign = dot > 0f ? 1f : -1f;
+        target.x *= sign;
+        target.y *= sign;
+        target.z *= sign;
+        target.w *= sign;
+
+        var result = new Vector4(
+            Mathf.SmoothDamp(current.x, target.x, ref velocity.x, smoothTime),
+            Mathf.SmoothDamp(current.y, target.y, ref velocity.y, smoothTime),
+            Mathf.SmoothDamp(current.z, target.z, ref velocity.z, smoothTime),
+            Mathf.SmoothDamp(current.w, target.w, ref velocity.w, smoothTime)
+        ).normalized;
+
+        return new Quaternion(result.x, result.y, result.z, result.w);
+    }
+
+    // ----- DEBUG GIZMOS -----
+    void OnDrawGizmosSelected()
+    {
+        if (!robot) return;
+
+        // Draw emotion focus target
+        if (faceTarget)
+        {
+            Gizmos.color = Color.yellow;
+            Gizmos.DrawSphere(faceTarget.position, 0.1f);
+            Gizmos.DrawLine(robot.position, faceTarget.position);
+        }
+
+        // Draw camera position preview
+        if (Application.isPlaying)
+        {
+            CameraState state = isEmotionFocus ? emotionState : normalState;
+            Vector3 previewPos = CalculateDesiredPosition(state);
+
+            Gizmos.color = isEmotionFocus ? Color.red : Color.cyan;
+            Gizmos.DrawSphere(previewPos, 0.15f);
+            Gizmos.DrawLine(previewPos, isEmotionFocus && faceTarget ? faceTarget.position : robot.position);
+        }
     }
 }

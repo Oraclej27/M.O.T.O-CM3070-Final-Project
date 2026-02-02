@@ -12668,16 +12668,24 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   robot: {fileID: 598425021}
   faceTarget: {fileID: 598425021}
-  offset: {x: 0, y: 5, z: -11}
-  followSmooth: 8
-  rotateSmooth: 10
-  emotionFocusTime: 2
-  emotionRotateBoost: 2.5
-  emotionZoomOffset: 0.8
-  emotionFrontOffset: {x: 0, y: 0, z: 7}
+  normalState:
+    offset: {x: 0, y: 1.6, z: -11}
+    positionSmooth: 8
+    rotationSmooth: 8
+    useFollowYaw: 1
+    fov: 60
+  emotionState:
+    offset: {x: 0, y: -0.5, z: 4}
+    positionSmooth: 12
+    rotationSmooth: 12
+    useFollowYaw: 0
+    fov: 45
   zoomSpeed: 5
   minZoom: -11
   maxZoom: -3
+  recenterSpeed: 12
+  autoRecenter: 0
+  autoRecenterDelay: 2
   shakeDuration: 2
   shakeStrength: 5
 --- !u!1001 &1060479157
@@ -13293,6 +13301,33 @@ GameObject:
   m_CorrespondingSourceObject: {fileID: 6927240876314593832, guid: 8760fa8e01bd4a2478325446c54cf096, type: 3}
   m_PrefabInstance: {fileID: 6939210553183293136}
   m_PrefabAsset: {fileID: 0}
+--- !u!54 &1291473380
+Rigidbody:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1291473373}
+  serializedVersion: 4
+  m_Mass: 5
+  m_Drag: 0
+  m_AngularDrag: 0.05
+  m_CenterOfMass: {x: 0, y: 0, z: 0}
+  m_InertiaTensor: {x: 1, y: 1, z: 1}
+  m_InertiaRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ImplicitCom: 1
+  m_ImplicitTensor: 1
+  m_UseGravity: 1
+  m_IsKinematic: 0
+  m_Interpolate: 0
+  m_Constraints: 0
+  m_CollisionDetection: 0
 --- !u!1001 &1310499840
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -14202,11 +14237,11 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 195891043519863498, guid: 252176e69f2d2f0499de50753c4d2b1e, type: 3}
       propertyPath: m_LocalPosition.x
-      value: -15
+      value: -15.26
       objectReference: {fileID: 0}
     - target: {fileID: 195891043519863498, guid: 252176e69f2d2f0499de50753c4d2b1e, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 1.37
+      value: 1.57
       objectReference: {fileID: 0}
     - target: {fileID: 195891043519863498, guid: 252176e69f2d2f0499de50753c4d2b1e, type: 3}
       propertyPath: m_LocalPosition.z
@@ -14308,7 +14343,10 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 6927240876314593832, guid: 8760fa8e01bd4a2478325446c54cf096, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1291473380}
   m_SourcePrefab: {fileID: 100100000, guid: 8760fa8e01bd4a2478325446c54cf096, type: 3}
 --- !u!1001 &7850400877166410139
 PrefabInstance:
