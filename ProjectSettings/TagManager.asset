@@ -6,11 +6,12 @@ TagManager:
   tags:
   - Pipe
   - Ball
+  - Pushable
   layers:
   - Default
   - TransparentFX
   - Ignore Raycast
-  - 
+  - Block
   - Water
   - UI
   - 
