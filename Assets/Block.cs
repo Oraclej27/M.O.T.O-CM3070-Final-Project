@@ -68,10 +68,6 @@ public class Block : MonoBehaviour
         UpdateLEDColor();
     }
 
-    //void Start()
-    //{
-    //    UpdateConnectedBlocks();
-    //}
     IEnumerator Start()
     {
         yield return new WaitForFixedUpdate(); // wait for physics
@@ -129,31 +125,6 @@ public class Block : MonoBehaviour
         UpdateLEDColor();
     }
 
-    //public void OnRelease()
-    //{
-    //    isBeingHeld = false;
-    //    UpdatePhysicsState();
-    //    UpdateConnectedBlocks();
-    //    UpdateLEDColor();
-    //}
-    //public void OnRelease()
-    //{
-    //    isBeingHeld = false;
-
-    //    if (currentState == BlockState.Immovable)
-    //    {
-    //        rb.isKinematic = true;
-    //        rb.constraints = RigidbodyConstraints.FreezeAll;
-    //    }
-    //    else
-    //    {
-    //        rb.isKinematic = false;
-    //        rb.constraints = RigidbodyConstraints.None;
-    //    }
-
-    //    UpdateConnectedBlocks();
-    //    UpdateLEDColor();
-    //}
     public void OnRelease()
     {
         isBeingHeld = false;
@@ -175,7 +146,6 @@ public class Block : MonoBehaviour
         UpdateLEDColor();
     }
 
-
     public List<Block> GetConnectedBlocks(bool includeSelf = false)
     {
         List<Block> result = new List<Block>(connectedBlocks);
@@ -183,29 +153,6 @@ public class Block : MonoBehaviour
         return result;
     }
 
-    //public void UpdateConnectedBlocks()
-    //{
-    //    connectedBlocks.Clear();
-
-    //    Collider[] nearbyColliders = Physics.OverlapSphere(
-    //        transform.position,
-    //        connectionCheckRadius
-    //    );
-
-    //    foreach (Collider col in nearbyColliders)
-    //    {
-    //        Block otherBlock = col.GetComponent<Block>();
-    //        if (otherBlock != null && otherBlock != this)
-    //        {
-    //            if (IsTouching(otherBlock))
-    //            {
-    //                connectedBlocks.Add(otherBlock);
-    //            }
-    //        }
-    //    }
-
-    //    Debug.Log($"{gameObject.name} is connected to {connectedBlocks.Count} blocks");
-    //}
     public void UpdateConnectedBlocks()
     {
         connectedBlocks.Clear();
@@ -219,15 +166,6 @@ public class Block : MonoBehaviour
         Debug.Log($"{gameObject.name} is connected to {connectedBlocks.Count} blocks");
     }
 
-
-    //void OnCollisionStay(Collision collision)
-    //{
-    //    Block other = collision.collider.GetComponent<Block>();
-    //    if (other == null) return;
-    //    if (isBeingHeld) return;
-
-    //    TrySnapToBlock(other);
-    //}
     void OnCollisionEnter(Collision collision)
     {
         Block other = collision.collider.GetComponent<Block>();
@@ -245,34 +183,6 @@ public class Block : MonoBehaviour
         // Then update connections
         UpdateConnectedBlocks();
     }
-
-
-    //void TrySnapToBlock(Block other)
-    //{
-    //    Vector3 delta = transform.position - other.transform.position;
-    //    Vector3 snapDir;
-
-    //    float ax = Mathf.Abs(delta.x);
-    //    float ay = Mathf.Abs(delta.y);
-    //    float az = Mathf.Abs(delta.z);
-
-    //    // Choose dominant axis (true face detection)
-    //    if (ay > ax && ay > az)
-    //        snapDir = new Vector3(0, Mathf.Sign(delta.y), 0);
-    //    else if (ax > az)
-    //        snapDir = new Vector3(Mathf.Sign(delta.x), 0, 0);
-    //    else
-    //        snapDir = new Vector3(0, 0, Mathf.Sign(delta.z));
-
-    //    float size = blockCollider.bounds.size.x; // assumes cubes
-    //    Vector3 snappedPos = other.transform.position + snapDir * size;
-
-    //    rb.position = snappedPos;
-    //    rb.linearVelocity = Vector3.zero;
-    //    rb.angularVelocity = Vector3.zero;
-
-    //    UpdateConnectedBlocks();
-    //}
     void TrySnapToBlock(Block other)
     {
         Bounds a = blockCollider.bounds;
@@ -394,17 +304,6 @@ public class Block : MonoBehaviour
         isGrounded = Physics.Raycast(rayStart, Vector3.down, checkDistance);
     }
 
-  
-    //protected virtual bool IsTouching(Block otherBlock)
-    //{
-    //    float tolerance = 0.02f;
-    //    return Vector3.Distance(
-    //        blockCollider.bounds.ClosestPoint(otherBlock.transform.position),
-    //        otherBlock.blockCollider.bounds.ClosestPoint(transform.position)
-    //    ) < tolerance;
-    //}
-
-
     void PropagateStateToConnectedBlocks(BlockState newState, Block source, HashSet<Block> visited = null)
     {
         if (visited == null) visited = new HashSet<Block>();
@@ -445,66 +344,11 @@ public class Block : MonoBehaviour
         ledMaterial.SetColor("_EmissionColor", originalColor * emissionIntensity);
     }
 
-    //public void TryAutoSnapToGrid()
-    //{
-    //    if (!useSnapping) return;
-
-    //    // Find nearby blocks to snap to
-    //    Collider[] nearbyBlocks = Physics.OverlapSphere(
-    //        transform.position,
-    //        autoSnapDistance,
-    //        LayerMask.GetMask("Block") // Make sure blocks are on "Block" layer
-    //    );
-
-    //    Vector3 averagePosition = Vector3.zero;
-    //    int count = 0;
-
-    //    foreach (Collider col in nearbyBlocks)
-    //    {
-    //        if (col.gameObject != gameObject && col.GetComponent<Block>() != null)
-    //        {
-    //            averagePosition += col.transform.position;
-    //            count++;
-    //        }
-    //    }
-
-    //    if (count > 0)
-    //    {
-    //        averagePosition /= count;
-
-    //        // Snap to grid based on nearby blocks
-    //        float gridSize = 1.0f;
-    //        Vector3 gridPosition = new Vector3(
-    //            Mathf.Round(averagePosition.x / gridSize) * gridSize,
-    //            transform.position.y, // Keep current height
-    //            Mathf.Round(averagePosition.z / gridSize) * gridSize
-    //        );
-
-    //        // Only snap if it's a significant improvement
-    //        if (Vector3.Distance(transform.position, gridPosition) < autoSnapDistance)
-    //        {
-    //            transform.position = gridPosition;
-    //            Debug.Log($"Block auto-snapped to grid at {gridPosition}");
-    //        }
-    //    }
-    //}
-
     [ContextMenu("Force Update Connections")]
     void ForceUpdateConnections()
     {
         UpdateConnectedBlocks();
     }
-
-
-    //// Call this when block is released
-    //public void OnReleaseWithSnap()
-    //{
-    //    OnRelease(); // Your existing method
-
-    //    // Try to snap to grid
-    //    TryAutoSnapToGrid();
-    //}
-
 
     // ==================== EDITOR & DEBUG ====================
 
