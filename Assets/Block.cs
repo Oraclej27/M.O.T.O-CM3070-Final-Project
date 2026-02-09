@@ -34,6 +34,8 @@ public class Block : MonoBehaviour
     // Connection system
     private List<Block> connectedBlocks = new List<Block>();
     private float connectionCheckRadius = 1.1f; // Slightly larger than block size
+    private HashSet<Block> snappedTo = new HashSet<Block>();
+
 
     // State management
     public enum BlockState
@@ -134,9 +136,29 @@ public class Block : MonoBehaviour
     //    UpdateConnectedBlocks();
     //    UpdateLEDColor();
     //}
+    //public void OnRelease()
+    //{
+    //    isBeingHeld = false;
+
+    //    if (currentState == BlockState.Immovable)
+    //    {
+    //        rb.isKinematic = true;
+    //        rb.constraints = RigidbodyConstraints.FreezeAll;
+    //    }
+    //    else
+    //    {
+    //        rb.isKinematic = false;
+    //        rb.constraints = RigidbodyConstraints.None;
+    //    }
+
+    //    UpdateConnectedBlocks();
+    //    UpdateLEDColor();
+    //}
     public void OnRelease()
     {
         isBeingHeld = false;
+
+        snappedTo.Clear();
 
         if (currentState == BlockState.Immovable)
         {
@@ -153,6 +175,7 @@ public class Block : MonoBehaviour
         UpdateLEDColor();
     }
 
+
     public List<Block> GetConnectedBlocks(bool includeSelf = false)
     {
         List<Block> result = new List<Block>(connectedBlocks);
@@ -160,29 +183,131 @@ public class Block : MonoBehaviour
         return result;
     }
 
+    //public void UpdateConnectedBlocks()
+    //{
+    //    connectedBlocks.Clear();
+
+    //    Collider[] nearbyColliders = Physics.OverlapSphere(
+    //        transform.position,
+    //        connectionCheckRadius
+    //    );
+
+    //    foreach (Collider col in nearbyColliders)
+    //    {
+    //        Block otherBlock = col.GetComponent<Block>();
+    //        if (otherBlock != null && otherBlock != this)
+    //        {
+    //            if (IsTouching(otherBlock))
+    //            {
+    //                connectedBlocks.Add(otherBlock);
+    //            }
+    //        }
+    //    }
+
+    //    Debug.Log($"{gameObject.name} is connected to {connectedBlocks.Count} blocks");
+    //}
     public void UpdateConnectedBlocks()
     {
         connectedBlocks.Clear();
 
-        Collider[] nearbyColliders = Physics.OverlapSphere(
-            transform.position,
-            connectionCheckRadius
-        );
-
-        foreach (Collider col in nearbyColliders)
+        foreach (Block block in snappedTo)
         {
-            Block otherBlock = col.GetComponent<Block>();
-            if (otherBlock != null && otherBlock != this)
-            {
-                if (IsTouching(otherBlock))
-                {
-                    connectedBlocks.Add(otherBlock);
-                }
-            }
+            if (block != null)
+                connectedBlocks.Add(block);
         }
 
         Debug.Log($"{gameObject.name} is connected to {connectedBlocks.Count} blocks");
     }
+
+
+    //void OnCollisionStay(Collision collision)
+    //{
+    //    Block other = collision.collider.GetComponent<Block>();
+    //    if (other == null) return;
+    //    if (isBeingHeld) return;
+
+    //    TrySnapToBlock(other);
+    //}
+    void OnCollisionEnter(Collision collision)
+    {
+        Block other = collision.collider.GetComponent<Block>();
+        if (other == null) return;
+        if (isBeingHeld) return;
+
+        // Snap once
+        if (!snappedTo.Contains(other))
+        {
+            TrySnapToBlock(other);
+            snappedTo.Add(other);
+            other.snappedTo.Add(this);
+        }
+
+        // Then update connections
+        UpdateConnectedBlocks();
+    }
+
+
+    //void TrySnapToBlock(Block other)
+    //{
+    //    Vector3 delta = transform.position - other.transform.position;
+    //    Vector3 snapDir;
+
+    //    float ax = Mathf.Abs(delta.x);
+    //    float ay = Mathf.Abs(delta.y);
+    //    float az = Mathf.Abs(delta.z);
+
+    //    // Choose dominant axis (true face detection)
+    //    if (ay > ax && ay > az)
+    //        snapDir = new Vector3(0, Mathf.Sign(delta.y), 0);
+    //    else if (ax > az)
+    //        snapDir = new Vector3(Mathf.Sign(delta.x), 0, 0);
+    //    else
+    //        snapDir = new Vector3(0, 0, Mathf.Sign(delta.z));
+
+    //    float size = blockCollider.bounds.size.x; // assumes cubes
+    //    Vector3 snappedPos = other.transform.position + snapDir * size;
+
+    //    rb.position = snappedPos;
+    //    rb.linearVelocity = Vector3.zero;
+    //    rb.angularVelocity = Vector3.zero;
+
+    //    UpdateConnectedBlocks();
+    //}
+    void TrySnapToBlock(Block other)
+    {
+        Bounds a = blockCollider.bounds;
+        Bounds b = other.blockCollider.bounds;
+
+        Vector3 delta = a.center - b.center;
+        Vector3 snapDir;
+
+        float ax = Mathf.Abs(delta.x);
+        float ay = Mathf.Abs(delta.y);
+        float az = Mathf.Abs(delta.z);
+
+        // Determine dominant axis
+        if (ay > ax && ay > az)
+            snapDir = Vector3.up * Mathf.Sign(delta.y);
+        else if (ax > az)
+            snapDir = Vector3.right * Mathf.Sign(delta.x);
+        else
+            snapDir = Vector3.forward * Mathf.Sign(delta.z);
+
+        // Distance = sum of extents on that axis
+        Vector3 offset =
+            new Vector3(
+                snapDir.x * (a.extents.x + b.extents.x),
+                snapDir.y * (a.extents.y + b.extents.y),
+                snapDir.z * (a.extents.z + b.extents.z)
+            );
+
+        Vector3 snappedPos = b.center + offset;
+
+        rb.position = snappedPos;
+        rb.linearVelocity = Vector3.zero;
+        rb.angularVelocity = Vector3.zero;
+    }
+
 
     // ==================== PRIVATE METHODS ====================
 
@@ -269,19 +394,15 @@ public class Block : MonoBehaviour
         isGrounded = Physics.Raycast(rayStart, Vector3.down, checkDistance);
     }
 
+  
     //protected virtual bool IsTouching(Block otherBlock)
     //{
-    //    // Check if blocks are within touching distance
-    //    return blockCollider.bounds.Intersects(otherBlock.blockCollider.bounds);
+    //    float tolerance = 0.02f;
+    //    return Vector3.Distance(
+    //        blockCollider.bounds.ClosestPoint(otherBlock.transform.position),
+    //        otherBlock.blockCollider.bounds.ClosestPoint(transform.position)
+    //    ) < tolerance;
     //}
-    protected virtual bool IsTouching(Block otherBlock)
-    {
-        float tolerance = 0.02f;
-        return Vector3.Distance(
-            blockCollider.bounds.ClosestPoint(otherBlock.transform.position),
-            otherBlock.blockCollider.bounds.ClosestPoint(transform.position)
-        ) < tolerance;
-    }
 
 
     void PropagateStateToConnectedBlocks(BlockState newState, Block source, HashSet<Block> visited = null)
@@ -367,13 +488,6 @@ public class Block : MonoBehaviour
     //        }
     //    }
     //}
-    void OnCollisionEnter(Collision collision)
-    {
-        if (collision.collider.GetComponent<Block>() != null)
-        {
-            UpdateConnectedBlocks();
-        }
-    }
 
     [ContextMenu("Force Update Connections")]
     void ForceUpdateConnections()
