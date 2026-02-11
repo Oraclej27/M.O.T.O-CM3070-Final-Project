@@ -108,13 +108,22 @@ public class Block : MonoBehaviour
         PropagateStateToConnectedBlocks(newState, source);
     }
 
+    //public void ToggleState()
+    //{
+    //    BlockState newState = (currentState == BlockState.Movable)
+    //        ? BlockState.Immovable
+    //        : BlockState.Movable;
+
+    //    ChangeState(newState);
+    //}
     public void ToggleState()
     {
-        BlockState newState = (currentState == BlockState.Movable)
+        currentState = (currentState == BlockState.Movable)
             ? BlockState.Immovable
             : BlockState.Movable;
 
-        ChangeState(newState);
+        UpdatePhysicsState();
+        UpdateLEDColor();
     }
 
     public void OnPickup()

@@ -29,7 +29,9 @@ public class BlockSnappingSystem : MonoBehaviour
         Vector3 gridPos = SnapToGrid(blockPosition);
 
         // Check if there's a block at this position (except the one being held)
-        Collider[] colliders = Physics.OverlapBox(gridPos, Vector3.one * 0.45f);
+        //Collider[] colliders = Physics.OverlapBox(gridPos, Vector3.one * 0.45f);
+        Collider[] colliders = Physics.OverlapBox(gridPos, Vector3.one * 0.6f, Quaternion.identity, blockLayer);
+
         bool hasBlockHere = false;
 
         foreach (Collider col in colliders)
