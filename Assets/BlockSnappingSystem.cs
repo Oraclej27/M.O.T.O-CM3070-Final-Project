@@ -1,155 +1,88 @@
+using System.Collections.Generic;
 using UnityEngine;
 
-public class BlockSnappingSystem : MonoBehaviour
+public class GridSnappingSystem : MonoBehaviour
 {
-    [Header("Snap Settings")]
-    public float snapThreshold = 0.3f;
-    public LayerMask blockLayer;
+    [Header("Grid Settings")]
+    public float gridSize = 1f; // size of one block unit
+    public bool requireNearbyBlock = false; // only snap if near another block
+    public float nearbyCheckRadius = 1f;
 
-    [Header("Visual Feedback")]
-    public GameObject snapIndicatorPrefab;
-    public Material validSnapMaterial;
-    public Material invalidSnapMaterial;
+    // Keep track of occupied positions (optional, prevents overlap)
+    private HashSet<Vector3> occupiedPositions = new HashSet<Vector3>();
 
-    private GameObject currentIndicator;
-    private Renderer indicatorRenderer;
+    // ==================== PUBLIC METHODS ====================
 
-    void Start()
+    /// <summary>
+    /// Snap a world position to the nearest grid position
+    /// </summary>
+    public Vector3 SnapPosition(Vector3 position)
     {
-        CreateIndicator();
+        float x = Mathf.Round(position.x / gridSize) * gridSize;
+        float y = Mathf.Round(position.y / gridSize) * gridSize;
+        float z = Mathf.Round(position.z / gridSize) * gridSize;
+        return new Vector3(x, y, z);
     }
 
-    // Call this every frame when moving a block
-    public bool GetSnapPosition(Vector3 blockPosition, out Vector3 snapPosition, out bool isValid)
+    /// <summary>
+    /// Place a block at a valid snapped position
+    /// </summary>
+    public void PlaceBlock(Block block)
     {
-        snapPosition = blockPosition;
-        isValid = false;
+        if (block == null) return;
 
-        // Find nearest grid position
-        Vector3 gridPos = SnapToGrid(blockPosition);
+        Vector3 targetPos = block.transform.position;
 
-        // Check if there's a block at this position (except the one being held)
-        //Collider[] colliders = Physics.OverlapBox(gridPos, Vector3.one * 0.45f);
-        Collider[] colliders = Physics.OverlapBox(gridPos, Vector3.one * 0.6f, Quaternion.identity, blockLayer);
-
-        bool hasBlockHere = false;
-
-        foreach (Collider col in colliders)
+        // Optionally require nearby block to snap
+        if (requireNearbyBlock)
         {
-            Block block = col.GetComponent<Block>();
-            if (block != null && !block.isBeingHeld)
-            {
-                hasBlockHere = true;
+            Collider[] nearby = Physics.OverlapSphere(targetPos, nearbyCheckRadius);
+            bool foundBlock = false;
 
-                Vector3 snap = SnapToFace(block.transform.position, blockPosition);
-                snapPosition = snap;
-                isValid = CheckStablePosition(snap);
-                ShowIndicator(snap, isValid);
-                return true;
+            foreach (Collider col in nearby)
+            {
+                Block otherBlock = col.GetComponent<Block>();
+                if (otherBlock != null && otherBlock != block)
+                {
+                    foundBlock = true;
+                    break;
+                }
+            }
+
+            if (!foundBlock)
+            {
+                // Don't snap if no nearby block
+                return;
             }
         }
 
-        // If no block here and close enough to grid, snap
-        float distanceToGrid = Vector3.Distance(blockPosition, gridPos);
-        if (!hasBlockHere && distanceToGrid < snapThreshold)
+        // Snap to grid
+        Vector3 snappedPos = SnapPosition(targetPos);
+
+        // Optional: prevent overlapping
+        if (!occupiedPositions.Contains(snappedPos))
         {
-            snapPosition = gridPos;
-            isValid = CheckStablePosition(gridPos);
-            ShowIndicator(gridPos, isValid);
-            return true;
-        }
-
-        HideIndicator();
-        return false;
-    }
-
-    Vector3 SnapToFace(Vector3 blockPos, Vector3 targetPos)
-    {
-        Vector3 dir = (targetPos - blockPos).normalized;
-
-        Vector3 snapDir =
-            Mathf.Abs(dir.x) > Mathf.Abs(dir.z)
-            ? new Vector3(Mathf.Sign(dir.x), 0, 0)
-            : new Vector3(0, 0, Mathf.Sign(dir.z));
-
-        return blockPos + snapDir;
-    }
-
-    Vector3 SnapToGrid(Vector3 position)
-    {
-        float gridSize = 1f; // one unit grid
-
-        return new Vector3(
-            Mathf.Round(position.x / gridSize) * gridSize,
-            Mathf.Round(position.y / gridSize) * gridSize,
-            Mathf.Round(position.z / gridSize) * gridSize
-        );
-    }
-
-
-    bool CheckStablePosition(Vector3 position)
-    {
-        // Can't place above 3 blocks high
-        if (position.y > 3f) return false;
-
-        // If not on ground, must have support below
-        if (position.y > 0.5f)
-        {
-            Vector3 checkBelow = position - Vector3.up;
-            Collider[] below = Physics.OverlapBox(checkBelow, Vector3.one * 0.45f, Quaternion.identity, blockLayer);
-            return below.Length > 0;
-        }
-
-        return true;
-    }
-
-    void CreateIndicator()
-    {
-        if (snapIndicatorPrefab != null)
-        {
-            currentIndicator = Instantiate(snapIndicatorPrefab);
+            block.transform.position = snappedPos;
+            block.OnRelease(); // make sure physics is enabled
+            occupiedPositions.Add(snappedPos);
         }
         else
         {
-            // Create default indicator
-            currentIndicator = GameObject.CreatePrimitive(PrimitiveType.Cube);
-            currentIndicator.transform.localScale = new Vector3(1.02f, 0.05f, 1.02f);
-            Destroy(currentIndicator.GetComponent<Collider>());
+            Debug.LogWarning("Position already occupied: " + snappedPos);
         }
-
-        indicatorRenderer = currentIndicator.GetComponent<Renderer>();
-        currentIndicator.SetActive(false);
     }
 
-    void ShowIndicator(Vector3 position, bool isValid)
+    /// <summary>
+    /// Remove a block from the occupied positions (e.g., when picked up)
+    /// </summary>
+    public void RemoveBlock(Block block)
     {
-        if (currentIndicator == null) return;
+        if (block == null) return;
 
-        currentIndicator.transform.position = position;
-
-        if (indicatorRenderer != null)
+        Vector3 pos = SnapPosition(block.transform.position);
+        if (occupiedPositions.Contains(pos))
         {
-            indicatorRenderer.material = isValid ?
-                (validSnapMaterial != null ? validSnapMaterial : CreateDefaultMaterial(Color.green)) :
-                (invalidSnapMaterial != null ? invalidSnapMaterial : CreateDefaultMaterial(Color.red));
+            occupiedPositions.Remove(pos);
         }
-
-        currentIndicator.SetActive(true);
-    }
-
-    void HideIndicator()
-    {
-        if (currentIndicator != null)
-            currentIndicator.SetActive(false);
-    }
-
-    Material CreateDefaultMaterial(Color color)
-    {
-        Material mat = new Material(Shader.Find("Standard"));
-        mat.color = new Color(color.r, color.g, color.b, 0.3f);
-        mat.SetInt("_SrcBlend", (int)UnityEngine.Rendering.BlendMode.SrcAlpha);
-        mat.SetInt("_DstBlend", (int)UnityEngine.Rendering.BlendMode.OneMinusSrcAlpha);
-        mat.EnableKeyword("_ALPHABLEND_ON");
-        return mat;
     }
 }

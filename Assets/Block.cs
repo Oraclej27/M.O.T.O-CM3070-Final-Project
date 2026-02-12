@@ -14,16 +14,11 @@ public class Block : MonoBehaviour
     public Color movableColor = Color.green;
     public Color immovableColor = Color.red;
     public Color heldColor = Color.blue;
-    public Color unstableColor = Color.yellow;
     public float emissionIntensity = 2.0f;
 
     [Header("Physics Settings")]
     public bool isBeingHeld = false;
     public bool isGrounded = false;
-
-    [Header("Snapping")]
-    public bool useSnapping = true;
-    public float autoSnapDistance = 0.15f;
 
     // Private references
     private Rigidbody rb;
@@ -33,9 +28,8 @@ public class Block : MonoBehaviour
 
     // Connection system
     private List<Block> connectedBlocks = new List<Block>();
-    private float connectionCheckRadius = 1.1f; // Slightly larger than block size
-    private HashSet<Block> snappedTo = new HashSet<Block>();
-
+    //private HashSet<Block> snappedTo = new HashSet<Block>();
+    private float connectionCheckDistance = 1.1f; // For scanning adjacent blocks
 
     // State management
     public enum BlockState
@@ -53,7 +47,6 @@ public class Block : MonoBehaviour
 
     void Awake()
     {
-        // Get components
         rb = GetComponent<Rigidbody>();
         blockCollider = GetComponent<Collider>();
 
@@ -68,16 +61,9 @@ public class Block : MonoBehaviour
         UpdateLEDColor();
     }
 
-    IEnumerator Start()
-    {
-        yield return new WaitForFixedUpdate(); // wait for physics
-        UpdateConnectedBlocks();
-    }
-
     void Update()
     {
         CheckGrounded();
-        UpdateVisuals();
     }
 
     void FixedUpdate()
@@ -90,143 +76,39 @@ public class Block : MonoBehaviour
 
     // ==================== PUBLIC METHODS ====================
 
-    public void ChangeState(BlockState newState, Block source = null)
-    {
-        if (currentState == newState) return;
-
-        Debug.Log($"{gameObject.name} changing state from {currentState} to {newState}");
-        currentState = newState;
-
-        UpdatePhysicsState();
-        UpdateLEDColor();
-
-        // Play effect
-        PlayStateChangeEffect();
-
-        // Propagate to connected blocks (excluding source to avoid infinite loops)
-        if (source == null) source = this;
-        PropagateStateToConnectedBlocks(newState, source);
-    }
-
-    //public void ToggleState()
-    //{
-    //    BlockState newState = (currentState == BlockState.Movable)
-    //        ? BlockState.Immovable
-    //        : BlockState.Movable;
-
-    //    ChangeState(newState);
-    //}
     public void ToggleState()
     {
+        // Switch between Movable and Immovable
         currentState = (currentState == BlockState.Movable)
             ? BlockState.Immovable
             : BlockState.Movable;
 
         UpdatePhysicsState();
         UpdateLEDColor();
+
+        Debug.Log($"{gameObject.name} toggled to {currentState}");
     }
 
     public void OnPickup()
     {
         isBeingHeld = true;
-        rb.isKinematic = true;
-        rb.constraints = RigidbodyConstraints.FreezeAll;
+
+        rb.isKinematic = false;
+        rb.useGravity = false;
+        rb.collisionDetectionMode = CollisionDetectionMode.Continuous;
+        rb.interpolation = RigidbodyInterpolation.Interpolate;
+        rb.constraints = RigidbodyConstraints.None;
+
         UpdateLEDColor();
     }
 
     public void OnRelease()
     {
         isBeingHeld = false;
-
-        snappedTo.Clear();
-
-        if (currentState == BlockState.Immovable)
-        {
-            rb.isKinematic = true;
-            rb.constraints = RigidbodyConstraints.FreezeAll;
-        }
-        else
-        {
-            rb.isKinematic = false;
-            rb.constraints = RigidbodyConstraints.None;
-        }
-
-        UpdateConnectedBlocks();
+        //snappedTo.Clear();
+        rb.useGravity = true;
         UpdateLEDColor();
     }
-
-    public List<Block> GetConnectedBlocks(bool includeSelf = false)
-    {
-        List<Block> result = new List<Block>(connectedBlocks);
-        if (includeSelf) result.Add(this);
-        return result;
-    }
-
-    public void UpdateConnectedBlocks()
-    {
-        connectedBlocks.Clear();
-
-        foreach (Block block in snappedTo)
-        {
-            if (block != null)
-                connectedBlocks.Add(block);
-        }
-
-        Debug.Log($"{gameObject.name} is connected to {connectedBlocks.Count} blocks");
-    }
-
-    void OnCollisionEnter(Collision collision)
-    {
-        Block other = collision.collider.GetComponent<Block>();
-        if (other == null) return;
-        if (isBeingHeld) return;
-
-        // Snap once
-        if (!snappedTo.Contains(other))
-        {
-            TrySnapToBlock(other);
-            snappedTo.Add(other);
-            other.snappedTo.Add(this);
-        }
-
-        // Then update connections
-        UpdateConnectedBlocks();
-    }
-    void TrySnapToBlock(Block other)
-    {
-        Bounds a = blockCollider.bounds;
-        Bounds b = other.blockCollider.bounds;
-
-        Vector3 delta = a.center - b.center;
-        Vector3 snapDir;
-
-        float ax = Mathf.Abs(delta.x);
-        float ay = Mathf.Abs(delta.y);
-        float az = Mathf.Abs(delta.z);
-
-        // Determine dominant axis
-        if (ay > ax && ay > az)
-            snapDir = Vector3.up * Mathf.Sign(delta.y);
-        else if (ax > az)
-            snapDir = Vector3.right * Mathf.Sign(delta.x);
-        else
-            snapDir = Vector3.forward * Mathf.Sign(delta.z);
-
-        // Distance = sum of extents on that axis
-        Vector3 offset =
-            new Vector3(
-                snapDir.x * (a.extents.x + b.extents.x),
-                snapDir.y * (a.extents.y + b.extents.y),
-                snapDir.z * (a.extents.z + b.extents.z)
-            );
-
-        Vector3 snappedPos = b.center + offset;
-
-        rb.position = snappedPos;
-        rb.linearVelocity = Vector3.zero;
-        rb.angularVelocity = Vector3.zero;
-    }
-
 
     // ==================== PRIVATE METHODS ====================
 
@@ -234,38 +116,27 @@ public class Block : MonoBehaviour
     {
         if (rb == null) return;
 
-        switch (currentState)
+        if (currentState == BlockState.Movable)
         {
-            case BlockState.Movable:
-                rb.isKinematic = false;
-                rb.constraints = RigidbodyConstraints.None;
-                rb.mass = blockWeight;
-                rb.linearDamping = 0.5f;
-                rb.angularDamping = 0.5f;
-                break;
-
-            case BlockState.Immovable:
-                if (!isBeingHeld)
-                {
-                    rb.isKinematic = true; // This makes it immovable
-                    rb.constraints = RigidbodyConstraints.FreezeAll;
-
-                    // Also freeze rotation
-                    rb.freezeRotation = true;
-                }
-                break;
+            rb.isKinematic = false;
+            rb.constraints = RigidbodyConstraints.None;
+            rb.mass = blockWeight;
+            rb.linearDamping = 0.5f;
+            rb.angularDamping = 0.5f;
+            rb.useGravity = true;
         }
-
-        Debug.Log($"{gameObject.name} physics: Kinematic={rb.isKinematic}, Constraints={rb.constraints}");
+        else if (currentState == BlockState.Immovable && !isBeingHeld)
+        {
+            rb.isKinematic = true;
+            rb.constraints = RigidbodyConstraints.FreezeAll;
+            rb.useGravity = false;
+        }
     }
 
     void LockImmovablePosition()
     {
-        // For extra safety, ensure position doesn't drift
         if (rb.isKinematic)
         {
-            // Kinematic rigidbodies stay put automatically
-            // But we can also lock transform
             rb.MovePosition(transform.position);
             rb.MoveRotation(transform.rotation);
         }
@@ -280,93 +151,34 @@ public class Block : MonoBehaviour
         if (isBeingHeld)
         {
             targetColor = heldColor;
+            // Pulse when held
+            float pulse = Mathf.PingPong(Time.time * 2f, 0.3f) + 0.7f;
+            targetColor *= pulse;
         }
         else
         {
             targetColor = (currentState == BlockState.Movable) ? movableColor : immovableColor;
         }
 
-        // Add pulsing if held
-        if (isBeingHeld)
-        {
-            float pulse = Mathf.PingPong(Time.time * 2f, 0.3f) + 0.7f;
-            targetColor *= pulse;
-        }
-
         currentLEDColor = targetColor;
         ledMaterial.SetColor("_EmissionColor", targetColor * emissionIntensity);
         ledMaterial.EnableKeyword("_EMISSION");
-
-        // Force update
         ledRenderer.UpdateGIMaterials();
-    }
-
-    void UpdateVisuals()
-    {
-        // Could add wobble/stability indicators here
     }
 
     void CheckGrounded()
     {
+        if (blockCollider == null) return;
+
         float checkDistance = 0.2f;
         Vector3 rayStart = transform.position - Vector3.up * (blockCollider.bounds.extents.y - 0.01f);
         isGrounded = Physics.Raycast(rayStart, Vector3.down, checkDistance);
-    }
-
-    void PropagateStateToConnectedBlocks(BlockState newState, Block source, HashSet<Block> visited = null)
-    {
-        if (visited == null) visited = new HashSet<Block>();
-        if (visited.Contains(this)) return;
-
-        visited.Add(this);
-
-        foreach (Block connectedBlock in connectedBlocks)
-        {
-            if (connectedBlock != source && !visited.Contains(connectedBlock))
-            {
-                if (connectedBlock.currentState != newState)
-                {
-                    connectedBlock.ChangeState(newState, this);
-                }
-
-                // Continue propagation
-                connectedBlock.PropagateStateToConnectedBlocks(newState, this, visited);
-            }
-        }
-    }
-
-    void PlayStateChangeEffect()
-    {
-        StartCoroutine(FlashEffect());
-    }
-
-    IEnumerator FlashEffect()
-    {
-        if (ledMaterial == null) yield break;
-
-        Color originalColor = currentLEDColor;
-        Color flashColor = Color.white * 5f;
-
-        ledMaterial.SetColor("_EmissionColor", flashColor);
-        yield return new WaitForSeconds(0.1f);
-
-        ledMaterial.SetColor("_EmissionColor", originalColor * emissionIntensity);
-    }
-
-    [ContextMenu("Force Update Connections")]
-    void ForceUpdateConnections()
-    {
-        UpdateConnectedBlocks();
     }
 
     // ==================== EDITOR & DEBUG ====================
 
     void OnDrawGizmosSelected()
     {
-        // Connection radius (cyan sphere)
-        Gizmos.color = new Color(0, 1, 1, 0.3f); // Semi-transparent cyan
-        Gizmos.DrawWireSphere(transform.position, connectionCheckRadius);
-
         // Connection lines (green)
         Gizmos.color = Color.green;
         foreach (Block connectedBlock in connectedBlocks)
@@ -377,32 +189,39 @@ public class Block : MonoBehaviour
             }
         }
 
-        // State indicator cube (red/green wireframe)
+        // State indicator (red/green wireframe)
         Gizmos.color = (currentState == BlockState.Movable) ? Color.green : Color.red;
-        Vector3 size = Vector3.one * 1.05f;
-        Gizmos.DrawWireCube(transform.position, size);
+        Gizmos.DrawWireCube(transform.position, Vector3.one * 1.05f);
 
-        // Ground check ray (yellow if grounded, gray if not)
+        // Connection scan radius (cyan - semi-transparent)
+        Gizmos.color = new Color(0, 1, 1, 0.2f);
+        Gizmos.DrawWireSphere(transform.position, connectionCheckDistance);
+
+        // Ground check ray
         Gizmos.color = isGrounded ? Color.yellow : Color.gray;
-        Vector3 rayStart = transform.position - Vector3.up * (GetComponent<Collider>().bounds.extents.y - 0.01f);
-        Gizmos.DrawRay(rayStart, Vector3.down * 0.2f);
+        if (blockCollider != null)
+        {
+            Vector3 rayStart = transform.position - Vector3.up * (blockCollider.bounds.extents.y - 0.01f);
+            Gizmos.DrawRay(rayStart, Vector3.down * 0.2f);
+        }
 
-        // Current state text
+        // State text
 #if UNITY_EDITOR
         UnityEditor.Handles.Label(transform.position + Vector3.up * 0.6f,
                                  currentState.ToString(),
                                  new GUIStyle()
                                  {
                                      normal = new GUIStyleState() { textColor = Color.white },
-                                     fontSize = 10
+                                     fontSize = 10,
+                                     fontStyle = FontStyle.Bold
                                  });
 #endif
     }
 
     void OnValidate()
     {
-        // Preview color in editor
-        if (ledRenderer != null && ledRenderer.sharedMaterial != null && Application.isEditor && !Application.isPlaying)
+        // Preview color in editor (non-play mode only)
+        if (ledRenderer != null && ledRenderer.sharedMaterial != null && !Application.isPlaying)
         {
             Material tempMat = new Material(ledRenderer.sharedMaterial);
             Color previewColor = (currentState == BlockState.Movable) ? movableColor : immovableColor;
