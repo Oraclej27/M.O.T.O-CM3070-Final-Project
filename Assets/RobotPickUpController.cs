@@ -61,57 +61,95 @@ public class RobotPickupController : MonoBehaviour
     //{
     //    if (heldBlock == null) return;
 
-    //    Vector3 snapPos = Vector3.zero;
-    //    bool isValid = false;
+    //    bool placed = snappingSystem.TryPlace(
+    //        heldBlock,
+    //        heldBlock.transform.position
+    //    );
 
-    //    bool hasSnap = snappingSystem != null &&
-    //                   snappingSystem.GetSnapPosition(
-    //                       heldBlock.transform.position,
-    //                       out snapPos,
-    //                       out isValid
-    //                   );
-
-    //    if (hasSnap && isValid)
+    //    if (!placed)
     //    {
-    //        heldBlock.GetComponent<Rigidbody>().MovePosition(snapPos);
+    //        Debug.Log("Cannot place here!");
+    //        return;
     //    }
 
-    //    heldBlock.OnRelease();
     //    heldBlock = null;
-
-    //    GetComponent<RobotController>().isHoldingBlock = false; // ADD THIS
+    //    GetComponent<RobotController>().isHoldingBlock = false;
     //}
     void DropBlock()
     {
         if (heldBlock == null) return;
 
-        // Remove from previous occupied positions
-        snappingSystem.RemoveBlock(heldBlock);
+        bool placed = snappingSystem.TryPlace(
+            heldBlock,
+            heldBlock.transform.position
+        );
 
-        // Snap & place
-        snappingSystem.PlaceBlock(heldBlock);
-
-        heldBlock = null;
-        GetComponent<RobotController>().isHoldingBlock = false;
+        if (placed)
+        {
+            heldBlock = null;
+            GetComponent<RobotController>().isHoldingBlock = false;
+        }
+        else
+        {
+            // Optional: feedback that placement failed
+            Debug.Log("Cannot place here!");
+        }
     }
-
-
+    //--------------------------------
     void MoveHeldBlock()
     {
-        Rigidbody rb = heldBlock.GetComponent<Rigidbody>();
-
-        Vector3 targetPosition = holdPoint.position;
-        Vector3 direction = targetPosition - rb.position;
-
-        float followSpeed = 20f; // tune this
-        rb.linearVelocity = direction * followSpeed;
-
-        // Rotation
-        Quaternion targetRot = transform.rotation * heldRotationOffset;
-        rb.MoveRotation(targetRot);
+        heldBlock.transform.position = holdPoint.position;
+        heldBlock.transform.rotation = transform.rotation * heldRotationOffset;
     }
+    //--------------------------------------------------------
 
 
+    //void ToggleTargetBlock()
+    //{
+    //    Block target = GetBlockInFront();
+
+    //    if (target != null)
+    //    {
+    //        target.ToggleState();
+    //    }
+    //}
+
+    //Block GetBlockInFront()
+    //{
+    //    Vector3 origin = transform.position + Vector3.up * 1f;
+    //    Vector3 halfExtents = new Vector3(0.5f, 1.0f, 0.5f);
+
+    //    RaycastHit[] hits = Physics.BoxCastAll(
+    //        origin,
+    //        halfExtents,
+    //        transform.forward,
+    //        transform.rotation,
+    //        pickupDistance,
+    //        blockLayer
+    //    );
+
+    //    Block highestBlock = null;
+    //    float highestY = float.MinValue;
+
+    //    foreach (RaycastHit hit in hits)
+    //    {
+    //        Block block = hit.collider.GetComponent<Block>();
+
+    //        if (block == null) continue;
+    //        if (block.isBeingHeld) continue;
+    //        if (block.currentState != Block.BlockState.Movable) continue;
+
+    //        float y = block.transform.position.y;
+
+    //        if (y > highestY)
+    //        {
+    //            highestY = y;
+    //            highestBlock = block;
+    //        }
+    //    }
+
+    //    return highestBlock;
+    //}
     void ToggleTargetBlock()
     {
         Block target = GetBlockInFront();
@@ -119,6 +157,11 @@ public class RobotPickupController : MonoBehaviour
         if (target != null)
         {
             target.ToggleState();
+            Debug.Log($"Toggled {target.name} to {target.currentState}");
+        }
+        else
+        {
+            Debug.Log("No block in front to toggle");
         }
     }
 
@@ -136,16 +179,19 @@ public class RobotPickupController : MonoBehaviour
             blockLayer
         );
 
+        // REMOVED falling block check - you don't need it anymore
+
+        // Pick the highest block (for stacking)
         Block highestBlock = null;
         float highestY = float.MinValue;
 
         foreach (RaycastHit hit in hits)
         {
             Block block = hit.collider.GetComponent<Block>();
-            if (block != null)
+            // REMOVED state filter - F key should work on any block
+            if (block != null && !block.isBeingHeld)
             {
                 float y = block.transform.position.y;
-
                 if (y > highestY)
                 {
                     highestY = y;
@@ -156,7 +202,6 @@ public class RobotPickupController : MonoBehaviour
 
         return highestBlock;
     }
-
 }
 
 
