@@ -15081,7 +15081,6 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 64
   snappingSystem: {fileID: 518516565}
-  placementPreview: {fileID: 0}
 --- !u!1001 &1310499840
 PrefabInstance:
   m_ObjectHideFlags: 0

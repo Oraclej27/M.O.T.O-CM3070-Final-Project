@@ -177,26 +177,4 @@ public class GridSnappingSystem : MonoBehaviour
             return false;
         }
     }
-    //public bool TryPlace(Block block, Vector3 worldPosition)
-    //{
-    //    // Snap to grid
-    //    Vector3 snappedPos = GetSnappedPosition(worldPosition);
-
-    //    // Check if position is empty (no block at this exact spot)
-    //    Collider[] colliders = Physics.OverlapBox(snappedPos, Vector3.one * 0.45f, Quaternion.identity, blockLayer);
-
-    //    foreach (Collider col in colliders)
-    //    {
-    //        if (col.gameObject != block.gameObject && col.GetComponent<Block>() != null)
-    //        {
-    //            Debug.Log("Position occupied!");
-    //            return false;
-    //        }
-    //    }
-
-    //    // Place block
-    //    block.transform.position = snappedPos;
-    //    block.OnPlaced();
-    //    return true;
-    //}
 }
