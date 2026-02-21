@@ -17,7 +17,7 @@ GameObject:
   - component: {fileID: 3236841272694902262}
   - component: {fileID: 8944595541820008542}
   - component: {fileID: 5309034658767203354}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: Block
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -430,6 +430,8 @@ MonoBehaviour:
   emissionIntensity: 2
   isBeingHeld: 1
   isGrounded: 0
+  useSnapping: 1
+  autoSnapDistance: 0.15
 --- !u!1 &1371424171524515135
 GameObject:
   m_ObjectHideFlags: 0

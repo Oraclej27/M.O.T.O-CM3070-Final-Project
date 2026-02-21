@@ -7,6 +7,10 @@ public class RobotController : MonoBehaviour
     public float speed = 1.0f;
     public float run = 0;
     float runVelocity = 1f;
+    private float verticalVelocity;
+    public float gravity = -20f;
+    public float groundStickForce = -2f;
+
 
     [Header("Debug / Collision")]
     [SerializeField] private int bumpCount;
@@ -28,6 +32,7 @@ public class RobotController : MonoBehaviour
     [Header("Animation Timing")]
     public float hitAnimationDuration = 0.6f;
     public float angerDuration = 2.0f;
+    public bool isHoldingBlock = false;
 
     // INTERNAL STATE
     private Animator anim;
@@ -35,6 +40,8 @@ public class RobotController : MonoBehaviour
     private string animationName;
     private Coroutine currentDanceCoroutine;
     private bool isDancing = false;
+  
+
 
     // FIX: Track if we need to apply gravity during collapse
     private bool applyCollapseGravity = false;
@@ -62,7 +69,7 @@ public class RobotController : MonoBehaviour
     void Update()
     {
         HandleMovement();
-        HandleJump();
+        //HandleJump();
 
         if (ballHitCooldown > 0f)
             ballHitCooldown -= Time.deltaTime;
@@ -118,33 +125,53 @@ public class RobotController : MonoBehaviour
     // -------------------- MOVEMENT --------------------
     void HandleMovement()
     {
-        // Don't allow movement during emotional states
-        if (currentState == RobotState.Normal || currentState == RobotState.Angry)
+        if (currentState != RobotState.Normal && currentState != RobotState.Angry)
         {
-            anim.SetFloat("Side", Input.GetAxis("Horizontal"));
-            anim.SetFloat("Speed", Input.GetAxis("Vertical"));
-
-            if (Input.GetKey(KeyCode.LeftShift) && run < 1)
-                run += Time.deltaTime * runVelocity;
-            else if (run > 0)
-                run -= Time.deltaTime * runVelocity;
-
-            anim.SetFloat("run", run);
-        }
-        else
-        {
-            // Stop movement input during emotional states
             anim.SetFloat("Side", 0);
             anim.SetFloat("Speed", 0);
             anim.SetFloat("run", 0);
+            return;
         }
+
+        float horizontal = Input.GetAxis("Horizontal");
+        float vertical = Input.GetAxis("Vertical");
+
+        anim.SetFloat("Side", horizontal);
+        anim.SetFloat("Speed", vertical);
+
+        // Movement direction
+        Vector3 move = transform.forward * vertical + transform.right * horizontal;
+
+        if (controller.isGrounded)
+        {
+            if (verticalVelocity < 0)
+                verticalVelocity = groundStickForce; // keeps us glued to slopes
+        }
+        else
+        {
+            verticalVelocity += gravity * Time.deltaTime;
+        }
+
+        move *= speed;
+
+        if (Input.GetKey(KeyCode.LeftShift) && run < 1) 
+           run += Time.deltaTime * runVelocity; 
+        else if (run > 0)
+           run -= Time.deltaTime * runVelocity; 
+
+        anim.SetFloat("run", run);
+
+        Vector3 finalMove = move + Vector3.up * verticalVelocity;
+
+        controller.Move(finalMove * Time.deltaTime);
     }
 
-    void HandleJump()
-    {
-        if (Input.GetKeyDown(KeyCode.Space) && currentState == RobotState.Normal && !isDancing)
-            anim.SetBool("Jump", true);
-    }
+
+    //void HandleJump()
+    //{
+    //    if (Input.GetKeyDown(KeyCode.Space) && currentState == RobotState.Normal && !isDancing)
+    //        anim.SetBool("Jump", true);
+    //}
 
     // -------------------- BUMP LOGIC --------------------
     private void OnControllerColliderHit(ControllerColliderHit hit)
@@ -167,9 +194,19 @@ public class RobotController : MonoBehaviour
         bumpCooldown = bumpCooldownTime;
     }
 
+    //public void RegisterBump()
+    //{
+    //    if (currentState == RobotState.Fallen || isDancing) return;
+
+    //    bumpCount++;
+    //    Debug.Log("BUMP COUNT = " + bumpCount);
+
+    //    StartCoroutine(ProcessBumpRoutine());
+    //}
     public void RegisterBump()
     {
-        if (currentState == RobotState.Fallen || isDancing) return;
+        if (currentState == RobotState.Fallen || isDancing || isHoldingBlock)
+            return;
 
         bumpCount++;
         Debug.Log("BUMP COUNT = " + bumpCount);
