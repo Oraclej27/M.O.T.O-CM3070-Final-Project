@@ -99,11 +99,13 @@ public class GridSnappingSystem : MonoBehaviour
     public bool TryPlace(Block block, Vector3 worldPosition)
     {
         // Snap to grid horizontally
-        float snappedX = Mathf.Round(worldPosition.x / gridSize) * gridSize;
-        float snappedZ = Mathf.Round(worldPosition.z / gridSize) * gridSize;
+        //float snappedX = Mathf.Round(worldPosition.x / gridSize) * gridSize;
+        //float snappedZ = Mathf.Round(worldPosition.z / gridSize) * gridSize;
+        float placeX = worldPosition.x;
+        float placeZ = worldPosition.z;
 
         // Raycast from way above to find what's below
-        Vector3 rayOrigin = new Vector3(snappedX, 100f, snappedZ);
+        Vector3 rayOrigin = new Vector3(placeX, 100f, placeZ);
         RaycastHit[] hits = Physics.RaycastAll(rayOrigin, Vector3.down, 200f, blockLayer);
 
         RaycastHit? bestHit = null;
@@ -142,7 +144,7 @@ public class GridSnappingSystem : MonoBehaviour
             Debug.Log($"Placing on ground at y={newY}");
         }
 
-        Vector3 finalPos = new Vector3(snappedX, newY, snappedZ);
+        Vector3 finalPos = new Vector3(placeX, newY, placeZ);
 
         // IMPORTANT: When stacking, we ONLY check if the position is occupied
         // by a block that ISN'T the one we're placing on
