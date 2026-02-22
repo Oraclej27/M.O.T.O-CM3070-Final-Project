@@ -179,4 +179,73 @@ public class GridSnappingSystem : MonoBehaviour
             return false;
         }
     }
+
+    public bool GetPlacementInfo(Vector3 worldPosition, out Vector3 previewPosition, out bool isValid)
+    {
+        float placeX = worldPosition.x;
+        float placeZ = worldPosition.z;
+
+        // Raycast from way above to find what's below
+        Vector3 rayOrigin = new Vector3(placeX, 100f, placeZ);
+        RaycastHit[] hits = Physics.RaycastAll(rayOrigin, Vector3.down, 200f, blockLayer);
+
+        float highestY = float.MinValue;
+        Collider bestHit = null;
+
+        foreach (RaycastHit hit in hits)
+        {
+            // CRITICAL: Ignore the block we're carrying!
+            // Since we don't have the block reference here, we need to check if this hit is the held block
+            // We can use a tag or layer, but simplest is to check velocity or isBeingHeld
+            Block hitBlock = hit.collider.GetComponent<Block>();
+
+            // Skip if this is a block being held (it's kinematic and not where it will land)
+            if (hitBlock != null && hitBlock.isBeingHeld)
+                continue;
+
+            Collider col = hit.collider;
+            float top = col.bounds.max.y;
+
+            if (top > highestY)
+            {
+                highestY = top;
+                bestHit = col;
+            }
+        }
+
+        // Determine final Y position
+        float newY;
+        if (bestHit != null)
+        {
+            // Found ground or another block below
+            newY = highestY + (gridSize / 2f);
+            //Debug.Log($"Preview: Placing on top of {bestHit.name} at y={newY}");
+        }
+        else
+        {
+            // Nothing below - place at ground level
+            newY = gridSize / 2f;
+            //Debug.Log($"Preview: Placing on ground at y={newY}");
+        }
+
+        previewPosition = new Vector3(placeX, newY, placeZ);
+
+        // Check if position is empty (no blocks at this spot)
+        Collider[] blocksAtPos = Physics.OverlapBox(previewPosition, Vector3.one * (gridSize * 0.45f), Quaternion.identity, blockLayer);
+
+        isValid = true;
+        foreach (Collider col in blocksAtPos)
+        {
+            Block b = col.GetComponent<Block>();
+            // Ignore the held block in this check too
+            if (b != null && !b.isBeingHeld)
+            {
+                isValid = false;
+               // Debug.Log($"Preview: Position occupied by {b.name}");
+                break;
+            }
+        }
+
+        return true;
+    }
 }
