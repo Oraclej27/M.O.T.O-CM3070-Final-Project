@@ -40,7 +40,9 @@ public class RobotPickupController : MonoBehaviour
     //-------------------------------------------
     private Animator animator;
     private bool canMoveBlock = false;
-    private string currentLeverID;
+    //private string currentLeverID;
+
+    private Lever currentInteractionLever;
 
 
     void Start()
@@ -209,14 +211,30 @@ public class RobotPickupController : MonoBehaviour
         Debug.Log("No lever found with Lever component");
     }
 
+    //void StartLeverInteraction()
+    //{
+    //    if (nearbyLever == null) return;
+
+    //    isInteracting = true;
+    //    currentLeverID = nearbyLever.name; // Store the lever's name
+
+    //    Debug.Log($"Starting lever interaction with {currentLeverID}");
+
+    //    Vector3 toLever = (nearbyLever.handTarget.position - transform.position).normalized;
+    //    toLever.y = 0;
+
+    //    StartCoroutine(RotateToFace(toLever, () => {
+    //        animator.SetTrigger("PullLever");
+    //    }));
+    //}
     void StartLeverInteraction()
     {
         if (nearbyLever == null) return;
 
         isInteracting = true;
-        currentLeverID = nearbyLever.name; // Store the lever's name
+        currentInteractionLever = nearbyLever; // STORE IT!
 
-        Debug.Log($"Starting lever interaction with {currentLeverID}");
+        Debug.Log($"Starting lever interaction with {currentInteractionLever.name}");
 
         Vector3 toLever = (nearbyLever.handTarget.position - transform.position).normalized;
         toLever.y = 0;
@@ -247,32 +265,53 @@ public class RobotPickupController : MonoBehaviour
     }
 
     // Animation Event called during pull animation
-    public void AnimationEvent_LeverPull(string leverName)  //  STRING parameter
-    {
-        Debug.Log($"EVENT FIRED for lever: {leverName}");
+    //public void AnimationEvent_LeverPull(string leverName)  //  STRING parameter
+    //{
+    //    Debug.Log($"EVENT FIRED for lever: {leverName}");
 
-        // Find the lever by name
-        GameObject leverObj = GameObject.Find(leverName);
-        if (leverObj == null)
+    //    // Find the lever by name
+    //    GameObject leverObj = GameObject.Find(leverName);
+    //    if (leverObj == null)
+    //    {
+    //        Debug.LogError($"Could not find lever named {leverName}");
+    //        return;
+    //    }
+
+    //    Lever lever = leverObj.GetComponent<Lever>();
+    //    if (lever == null) return;
+
+    //    ikController.GrabLever(lever);
+    //    lever.PullLever();
+    //}
+    public void AnimationEvent_LeverPull()  //  No string parameter
+    {
+        if (currentInteractionLever == null)
         {
-            Debug.LogError($"Could not find lever named {leverName}");
+            Debug.LogError("No lever stored for interaction!");
             return;
         }
 
-        Lever lever = leverObj.GetComponent<Lever>();
-        if (lever == null) return;
+        Debug.Log($"EVENT FIRED for lever: {currentInteractionLever.name}");
 
-        ikController.GrabLever(lever);
-        lever.PullLever();
+        ikController.GrabLever(currentInteractionLever);
+        currentInteractionLever.PullLever();
     }
 
     // Animation Event when pull completes
+    //public void AnimationEvent_LeverPullComplete()
+    //{
+    //    ikController.ReleaseLever();
+    //    isInteracting = false;
+    //    nearbyLever = null;
+    //}
     public void AnimationEvent_LeverPullComplete()
     {
         ikController.ReleaseLever();
         isInteracting = false;
+        currentInteractionLever = null; // CLEAR IT!
         nearbyLever = null;
     }
+
     void TryPickup()
     {
         Block target = GetBlockInFront();
