@@ -194,15 +194,6 @@ public class RobotController : MonoBehaviour
         bumpCooldown = bumpCooldownTime;
     }
 
-    //public void RegisterBump()
-    //{
-    //    if (currentState == RobotState.Fallen || isDancing) return;
-
-    //    bumpCount++;
-    //    Debug.Log("BUMP COUNT = " + bumpCount);
-
-    //    StartCoroutine(ProcessBumpRoutine());
-    //}
     public void RegisterBump()
     {
         if (currentState == RobotState.Fallen || isDancing || isHoldingBlock)
