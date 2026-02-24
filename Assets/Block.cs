@@ -76,6 +76,19 @@ public class Block : MonoBehaviour
 
     // ==================== PUBLIC METHODS ====================
 
+    //public void ToggleState()
+    //{
+    //    // Switch between Movable and Immovable
+    //    currentState = (currentState == BlockState.Movable)
+    //        ? BlockState.Immovable
+    //        : BlockState.Movable;
+
+    //    rb.constraints = RigidbodyConstraints.None;
+    //    UpdatePhysicsState();
+    //    UpdateLEDColor();
+
+    //    Debug.Log($"{gameObject.name} toggled to {currentState}");
+    //}
     public void ToggleState()
     {
         // Switch between Movable and Immovable
@@ -83,34 +96,45 @@ public class Block : MonoBehaviour
             ? BlockState.Immovable
             : BlockState.Movable;
 
+        if (rb != null)
+        {
+            rb.constraints = RigidbodyConstraints.None;
+        }
+
         UpdatePhysicsState();
         UpdateLEDColor();
 
         Debug.Log($"{gameObject.name} toggled to {currentState}");
     }
 
+    //---------------------------------------------------
     public void OnPickup()
     {
         isBeingHeld = true;
 
-        rb.isKinematic = false;
+        rb.linearVelocity = Vector3.zero;
+        rb.angularVelocity = Vector3.zero;
+
+        rb.isKinematic = true;
         rb.useGravity = false;
-        rb.collisionDetectionMode = CollisionDetectionMode.Continuous;
-        rb.interpolation = RigidbodyInterpolation.Interpolate;
-        rb.constraints = RigidbodyConstraints.None;
 
         UpdateLEDColor();
     }
+    //------------------------------------------------------
 
-    public void OnRelease()
+
+   
+    public void OnPlaced()
     {
         isBeingHeld = false;
-        //snappedTo.Clear();
-        rb.useGravity = true;
+
+        // Restore physics for movable blocks
+        UpdatePhysicsState();
+
         UpdateLEDColor();
     }
-
     // ==================== PRIVATE METHODS ====================
+
 
     void UpdatePhysicsState()
     {
@@ -120,12 +144,12 @@ public class Block : MonoBehaviour
         {
             rb.isKinematic = false;
             rb.constraints = RigidbodyConstraints.None;
+            rb.useGravity = true;
             rb.mass = blockWeight;
             rb.linearDamping = 0.5f;
             rb.angularDamping = 0.5f;
-            rb.useGravity = true;
         }
-        else if (currentState == BlockState.Immovable && !isBeingHeld)
+        else // Immovable
         {
             rb.isKinematic = true;
             rb.constraints = RigidbodyConstraints.FreezeAll;
