@@ -19,6 +19,9 @@ public class Lever : MonoBehaviour
     [Header("IK Hint")]
     public Transform elbowHint; // Optional: helps arm bend correctly
 
+    [Header("Box Connection")]
+    public BoxContainer targetBox;
+
     private bool isPulled = false;
 
     public void PullLever()
@@ -35,6 +38,20 @@ public class Lever : MonoBehaviour
         onLeverPulled?.Invoke();
 
         Debug.Log("Lever pulled!");
+    }
+
+    public void TriggerBoxOpen()
+    {
+        Debug.Log("Lever event: Telling box to open!");
+
+        if (targetBox != null)
+        {
+            targetBox.OpenContainer(); // Call the box's open method
+        }
+        else
+        {
+            Debug.LogError("No target box assigned to lever!");
+        }
     }
 
     void OnDrawGizmosSelected()

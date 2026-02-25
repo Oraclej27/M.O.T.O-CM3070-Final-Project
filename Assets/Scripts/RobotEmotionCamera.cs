@@ -42,6 +42,18 @@ public class RobotEmotionCamera : MonoBehaviour
     public float shakeDuration = 0.2f;
     public float shakeStrength = 0.15f;
 
+    //[Header("Mouse Look")]
+    //public float mouseSensitivity = 2f;
+    //public float minPitch = -30f;
+    //public float maxPitch = 60f;
+    //public bool invertY = false;
+
+    //// Add these variables with your other private state
+    //private float mouseYaw;
+    //private float mousePitch;
+    //private float mouseYawVelocity;
+    //private float mousePitchVelocity;
+
     // Private State
     private Camera cam;
     private float currentZoom;
@@ -63,6 +75,10 @@ public class RobotEmotionCamera : MonoBehaviour
 
         currentZoom = normalState.offset.z;
         followYaw = robot.eulerAngles.y;
+
+        //mouseYaw = followYaw;
+        //mousePitch = 15f;
+
         targetFOV = normalState.fov;
 
         if (cam) cam.fieldOfView = targetFOV;
@@ -137,11 +153,30 @@ public class RobotEmotionCamera : MonoBehaviour
 
         return Quaternion.LookRotation(lookDirection);
     }
+    //Quaternion CalculateDesiredRotation(CameraState state, Vector3 desiredPosition)
+    //{
+    //    Vector3 lookTargetPosition = (isEmotionFocus && faceTarget) ? faceTarget.position : robot.position;
+
+    //    if (isEmotionFocus)
+    //    {
+    //        // Emotion focus - look directly at face
+    //        Vector3 lookDirection = lookTargetPosition - desiredPosition;
+    //        lookDirection.y = Mathf.Clamp(lookDirection.y, -0.3f, 0.3f);
+    //        return Quaternion.LookRotation(lookDirection);
+    //    }
+    //    else
+    //    {
+    //        // Normal mode - use mouse pitch for vertical look
+    //        Quaternion yawRotation = Quaternion.Euler(0f, followYaw, 0f);
+    //        Quaternion pitchRotation = Quaternion.Euler(mousePitch, 0f, 0f);
+    //        return yawRotation * pitchRotation;
+    //    }
+    //}
 
     void HandleInput()
     {
         // Right-click recenter
-        if (Input.GetMouseButton(1))
+        if (Input.GetMouseButton(0))
         {
             float targetYaw = robot.eulerAngles.y;
             followYaw = Mathf.SmoothDampAngle(followYaw, targetYaw, ref yawVelocity, 1f / recenterSpeed);
@@ -157,6 +192,41 @@ public class RobotEmotionCamera : MonoBehaviour
             }
         }
     }
+    //void HandleInput()
+    //{
+    //    if (isEmotionFocus) return; // Don't move camera during emotion focus
+
+    //    // Mouse look (only when right mouse button is held)
+    //    if (Input.GetMouseButton(1))
+    //    {
+    //        float mouseX = Input.GetAxis("Mouse X") * mouseSensitivity;
+    //        float mouseY = Input.GetAxis("Mouse Y") * mouseSensitivity * (invertY ? -1 : 1);
+
+    //        mouseYaw += mouseX;
+    //        mousePitch -= mouseY;
+
+    //        // Clamp pitch to prevent flipping
+    //        mousePitch = Mathf.Clamp(mousePitch, minPitch, maxPitch);
+
+    //        // Update followYaw with mouse Yaw
+    //        followYaw = mouseYaw;
+
+    //        timeSinceLastInput = 0f;
+    //    }
+    //    else if (autoRecenter)
+    //    {
+    //        timeSinceLastInput += Time.deltaTime;
+    //        if (timeSinceLastInput > autoRecenterDelay)
+    //        {
+    //            // Smoothly recenter to robot's forward
+    //            float targetYaw = robot.eulerAngles.y;
+    //            mouseYaw = Mathf.SmoothDampAngle(mouseYaw, targetYaw, ref mouseYawVelocity, 1f / recenterSpeed);
+    //            mousePitch = Mathf.SmoothDamp(mousePitch, 15f, ref mousePitchVelocity, 1f / recenterSpeed);
+
+    //            followYaw = mouseYaw;
+    //        }
+    //    }
+    //}
 
     void UpdateZoom()
     {
@@ -172,8 +242,8 @@ public class RobotEmotionCamera : MonoBehaviour
 
         // Keyboard zoom fallback
         float zoomInput = 0f;
-        if (Input.GetKey(KeyCode.R)) zoomInput += 1f;
-        if (Input.GetKey(KeyCode.F)) zoomInput -= 1f;
+        //if (Input.GetKey(KeyCode.R)) zoomInput += 1f;
+        //if (Input.GetKey(KeyCode.F)) zoomInput -= 1f;
 
         if (Mathf.Abs(zoomInput) > 0.01f)
         {

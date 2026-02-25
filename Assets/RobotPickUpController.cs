@@ -9,6 +9,9 @@ public class RobotPickupController : MonoBehaviour
     public float pickupDistance = 3f;
     public LayerMask blockLayer;
 
+    [Header("Collision Ignoring")]
+    public Collider[] ignoreCollidersWhenHolding;
+
     [Header("Snapping")]
     public GridSnappingSystem snappingSystem;
 
@@ -455,6 +458,15 @@ public class RobotPickupController : MonoBehaviour
 
             canMoveBlock = true;
 
+            foreach (Collider col in ignoreCollidersWhenHolding)
+            {
+                if (col != null)
+                {
+                    Physics.IgnoreCollision(GetComponent<Collider>(), col, true);
+                    Debug.Log($"Ignoring collisions with {col.name}");
+                }
+            }
+
             // Show preview AFTER block is grabbed
             if (previewInstance != null)
                 previewInstance.SetActive(true);
@@ -468,6 +480,15 @@ public class RobotPickupController : MonoBehaviour
     {
         if (heldBlock != null)
         {
+            foreach (Collider col in ignoreCollidersWhenHolding)
+            {
+                if (col != null)
+                {
+                    Physics.IgnoreCollision(GetComponent<Collider>(), col, false);
+                    Debug.Log($"Re-enabling collisions with {col.name}");
+                }
+            }
+
             // Double-check validity (in case something changed during animation)
             Vector3 previewPos;
             bool isValid;
