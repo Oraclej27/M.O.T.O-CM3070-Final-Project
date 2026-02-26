@@ -76,19 +76,6 @@ public class Block : MonoBehaviour
 
     // ==================== PUBLIC METHODS ====================
 
-    //public void ToggleState()
-    //{
-    //    // Switch between Movable and Immovable
-    //    currentState = (currentState == BlockState.Movable)
-    //        ? BlockState.Immovable
-    //        : BlockState.Movable;
-
-    //    rb.constraints = RigidbodyConstraints.None;
-    //    UpdatePhysicsState();
-    //    UpdateLEDColor();
-
-    //    Debug.Log($"{gameObject.name} toggled to {currentState}");
-    //}
     public void ToggleState()
     {
         // Switch between Movable and Immovable
