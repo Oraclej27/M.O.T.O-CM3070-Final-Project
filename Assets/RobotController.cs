@@ -11,6 +11,9 @@ public class RobotController : MonoBehaviour
     public float gravity = -20f;
     public float groundStickForce = -2f;
 
+    [Header("Weight")]
+    public float robotWeight = 3f; 
+
 
     [Header("Debug / Collision")]
     [SerializeField] private int bumpCount;
@@ -85,15 +88,15 @@ public class RobotController : MonoBehaviour
         }
 
         // Strafe inputs
-        //if (Input.GetKeyDown(KeyCode.Q))
-        //    anim.SetBool("StrafeLeft", true);
-        //if (Input.GetKeyUp(KeyCode.Q))
-        //    anim.SetBool("StrafeLeft", false);
+        if (Input.GetKeyDown(KeyCode.Q))
+            anim.SetBool("StrafeLeft", true);
+        if (Input.GetKeyUp(KeyCode.Q))
+            anim.SetBool("StrafeLeft", false);
 
-        //if (Input.GetKeyDown(KeyCode.E))
-        //    anim.SetBool("StrafeRight", true);
-        //if (Input.GetKeyUp(KeyCode.E))
-        //    anim.SetBool("StrafeRight", false);
+        if (Input.GetKeyDown(KeyCode.E))
+            anim.SetBool("StrafeRight", true);
+        if (Input.GetKeyUp(KeyCode.E))
+            anim.SetBool("StrafeRight", false);
 
         // FIX: Apply gravity during collapsed state if in air
         if (applyCollapseGravity && !controller.isGrounded)
