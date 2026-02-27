@@ -307,7 +307,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: c22777d6e868e4f2fb421913386b154e, type: 2}
+  - {fileID: 2100000, guid: 554d230dc1c73ad4fb945df074f744d4, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -426,12 +426,9 @@ MonoBehaviour:
   movableColor: {r: 0, g: 1, b: 0, a: 1}
   immovableColor: {r: 1, g: 0, b: 0, a: 1}
   heldColor: {r: 0, g: 0, b: 1, a: 1}
-  unstableColor: {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
   emissionIntensity: 2
   isBeingHeld: 1
   isGrounded: 0
-  useSnapping: 1
-  autoSnapDistance: 0.15
 --- !u!1 &1371424171524515135
 GameObject:
   m_ObjectHideFlags: 0

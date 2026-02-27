@@ -160,14 +160,11 @@ public class RobotPickupController : MonoBehaviour
         //}
         if (Input.GetKeyDown(KeyCode.Space))
         {
-            Debug.Log($"SPACE pressed - nearbyLever: {nearbyLever?.name ?? "null"}, heldBlock: {heldBlock?.name ?? "null"}, isInteracting: {isInteracting}");
             if (isInteracting) return; // Already interacting
-            Debug.Log("Already interacting");
 
             if (nearbyLever != null && heldBlock == null)
             {
                 // Interact with lever
-                Debug.Log($"Lever detected: {nearbyLever.name}");
                 StartLeverInteraction();
             }
             else if (heldBlock == null)
@@ -190,28 +187,24 @@ public class RobotPickupController : MonoBehaviour
     void CheckForNearbyLever()
     {
         Collider[] levers = Physics.OverlapSphere(transform.position, leverInteractionRange, leverLayer);
-        Debug.Log($"Found {levers.Length} colliders on Lever layer");
 
         for (int i = 0; i < levers.Length; i++)
         {
             Collider col = levers[i];
-            Debug.Log($"Collider {i}: {col.gameObject.name} on layer {LayerMask.LayerToName(col.gameObject.layer)}");
 
             Lever lever = col.GetComponent<Lever>();
             if (lever != null)
             {
                 nearbyLever = lever;
-                Debug.Log($"Found Lever component on {col.gameObject.name}!");
                 return;
             }
             else
             {
-                Debug.Log($"No Lever component on {col.gameObject.name}");
+                //Debug.Log($"No Lever component on {col.gameObject.name}");
             }
         }
 
         nearbyLever = null;
-        Debug.Log("No lever found with Lever component");
     }
 
     //void StartLeverInteraction()
