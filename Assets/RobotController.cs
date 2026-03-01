@@ -103,6 +103,7 @@ public class RobotController : MonoBehaviour
         {
             ApplyCollapseGravity();
         }
+
     }
 
     // FIX: Apply strong gravity during collapse

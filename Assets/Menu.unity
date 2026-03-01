@@ -604,13 +604,10 @@ MonoBehaviour:
   mainPanel: {fileID: 1007418640}
   controlsPanel: {fileID: 95612031}
   howToPlayPanel: {fileID: 1430601559}
+  firstMainButton: {fileID: 125361144}
+  firstControlsButton: {fileID: 1955500568}
+  firstHowToButton: {fileID: 474965428}
   level1SceneName: Level1
-  mainMenuButtons:
-  - {fileID: 125361144}
-  - {fileID: 522343785}
-  - {fileID: 1267552465}
-  controlsBackButton: {fileID: 1955500568}
-  howToPlayBackButton: {fileID: 474965428}
   audioSource: {fileID: 462707627}
   hoverSound: {fileID: 8300000, guid: 51031005fe86fe749bbacae65442f252, type: 3}
   clickSound: {fileID: 8300000, guid: ca880d2d72315b541ba7737f7c51fa7c, type: 3}
@@ -1501,7 +1498,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 10.125122, y: 29.3096}
+  m_AnchoredPosition: {x: 10.125122, y: 29.30957}
   m_SizeDelta: {x: -327.7949, y: -209.0719}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &690828455
@@ -2178,7 +2175,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: -14.022888, y: -27.300598}
+  m_AnchoredPosition: {x: -14.022949, y: -27.300537}
   m_SizeDelta: {x: -521.0562, y: -139.8477}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1839579397

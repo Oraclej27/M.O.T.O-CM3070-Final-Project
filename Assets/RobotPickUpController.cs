@@ -9,8 +9,8 @@ public class RobotPickupController : MonoBehaviour
     public float pickupDistance = 3f;
     public LayerMask blockLayer;
 
-    [Header("Collision Ignoring")]
-    public Collider[] ignoreCollidersWhenHolding;
+    //[Header("Collision Ignoring")]
+    //public Collider[] ignoreCollidersWhenHolding;
 
     [Header("Snapping")]
     public GridSnappingSystem snappingSystem;
@@ -46,6 +46,7 @@ public class RobotPickupController : MonoBehaviour
     //private string currentLeverID;
 
     private Lever currentInteractionLever;
+    private Collider[] heldBlockColliders;
 
 
     void Start()
@@ -100,30 +101,6 @@ public class RobotPickupController : MonoBehaviour
         previewInstance.SetActive(false);
     }
 
-    //void Update()
-    //{
-    //    HandleInput();
-
-    //    if (!isInteracting)
-    //    {
-    //        CheckForNearbyLever();
-    //    }
-
-    //    if (heldBlock != null)
-    //    {
-
-    //        if (canMoveBlock)
-    //        {
-    //            MoveHeldBlock();
-    //            UpdatePlacementPreview();
-    //        }
-    //    }
-    //    else if (previewInstance != null && previewInstance.activeSelf)
-    //    {
-    //        previewInstance.SetActive(false);
-    //    }
-    //}
-
     void Update()
     {
         HandleInput();
@@ -149,15 +126,7 @@ public class RobotPickupController : MonoBehaviour
 
     void HandleInput()
     {
-        // SPACE = Pick up / Drop
-        //if (Input.GetKeyDown(KeyCode.Space))
-        //{
-        //    if (heldBlock == null)
-        //        TryPickup();
-        //    else
-        //        DropBlock();
-
-        //}
+       
         if (Input.GetKeyDown(KeyCode.Space))
         {
             if (isInteracting) return; // Already interacting
@@ -207,28 +176,12 @@ public class RobotPickupController : MonoBehaviour
         nearbyLever = null;
     }
 
-    //void StartLeverInteraction()
-    //{
-    //    if (nearbyLever == null) return;
-
-    //    isInteracting = true;
-    //    currentLeverID = nearbyLever.name; // Store the lever's name
-
-    //    Debug.Log($"Starting lever interaction with {currentLeverID}");
-
-    //    Vector3 toLever = (nearbyLever.handTarget.position - transform.position).normalized;
-    //    toLever.y = 0;
-
-    //    StartCoroutine(RotateToFace(toLever, () => {
-    //        animator.SetTrigger("PullLever");
-    //    }));
-    //}
     void StartLeverInteraction()
     {
         if (nearbyLever == null) return;
 
         isInteracting = true;
-        currentInteractionLever = nearbyLever; // STORE IT!
+        currentInteractionLever = nearbyLever; // STORED!!
 
         Debug.Log($"Starting lever interaction with {currentInteractionLever.name}");
 
@@ -260,25 +213,6 @@ public class RobotPickupController : MonoBehaviour
         onComplete?.Invoke();
     }
 
-    // Animation Event called during pull animation
-    //public void AnimationEvent_LeverPull(string leverName)  //  STRING parameter
-    //{
-    //    Debug.Log($"EVENT FIRED for lever: {leverName}");
-
-    //    // Find the lever by name
-    //    GameObject leverObj = GameObject.Find(leverName);
-    //    if (leverObj == null)
-    //    {
-    //        Debug.LogError($"Could not find lever named {leverName}");
-    //        return;
-    //    }
-
-    //    Lever lever = leverObj.GetComponent<Lever>();
-    //    if (lever == null) return;
-
-    //    ikController.GrabLever(lever);
-    //    lever.PullLever();
-    //}
     public void AnimationEvent_LeverPull()  //  No string parameter
     {
         if (currentInteractionLever == null)
@@ -293,13 +227,6 @@ public class RobotPickupController : MonoBehaviour
         currentInteractionLever.PullLever();
     }
 
-    // Animation Event when pull completes
-    //public void AnimationEvent_LeverPullComplete()
-    //{
-    //    ikController.ReleaseLever();
-    //    isInteracting = false;
-    //    nearbyLever = null;
-    //}
     public void AnimationEvent_LeverPullComplete()
     {
         ikController.ReleaseLever();
@@ -441,6 +368,84 @@ public class RobotPickupController : MonoBehaviour
     }
 
     // Called by Animation Event at the exact frame hand touches block
+    //public void AnimationEvent_GrabBlock()
+    //{
+    //    if (heldBlock != null)
+    //    {
+    //        heldBlock.OnPickup();
+    //        GetComponent<RobotController>().isHoldingBlock = true;
+    //        animator.SetBool("isHolding", true);
+
+    //        canMoveBlock = true;
+
+    //        foreach (Collider col in ignoreCollidersWhenHolding)
+    //        {
+    //            if (col != null)
+    //            {
+    //                Physics.IgnoreCollision(GetComponent<Collider>(), col, true);
+    //                Debug.Log($"Ignoring collisions with {col.name}");
+    //            }
+    //        }
+
+    //        // Show preview AFTER block is grabbed
+    //        if (previewInstance != null)
+    //            previewInstance.SetActive(true);
+
+    //        Debug.Log("Animation Event: Grabbed block at exact frame");
+    //    }
+    //}
+
+
+    //public void AnimationEvent_ReleaseBlock()
+    //{
+    //    if (heldBlock != null)
+    //    {
+    //        foreach (Collider col in ignoreCollidersWhenHolding)
+    //        {
+    //            if (col != null)
+    //            {
+    //                Physics.IgnoreCollision(GetComponent<Collider>(), col, false);
+    //                Debug.Log($"Re-enabling collisions with {col.name}");
+    //            }
+    //        }
+
+    //        // Double-check validity (in case something changed during animation)
+    //        Vector3 previewPos;
+    //        bool isValid;
+    //        snappingSystem.GetPlacementInfo(heldBlock.transform.position, out previewPos, out isValid);
+
+    //        if (!isValid)
+    //        {
+    //            Debug.LogWarning("Position became invalid during placement animation!");
+    //            // Return to holding state
+    //            animator.SetBool("isHolding", true);
+    //            return;
+    //        }
+
+    //        bool placed = snappingSystem.TryPlace(heldBlock, heldBlock.transform.position);
+
+    //        if (placed)
+    //        {
+    //            heldBlock = null;
+    //            canMoveBlock = false;
+    //            GetComponent<RobotController>().isHoldingBlock = false;
+    //            animator.SetBool("isHolding", false);
+
+    //            if (previewInstance != null)
+    //                previewInstance.SetActive(false);
+
+    //            Debug.Log("Animation Event: Released block at exact frame");
+    //        }
+    //        else
+    //        {
+    //            Debug.LogWarning("TryPlace failed despite valid preview!");
+    //            // Return to holding state
+    //            animator.SetBool("isHolding", true);
+    //        }
+    //    }
+    //}
+    // Remove the public Collider[] ignoreCollidersWhenHolding array
+
     public void AnimationEvent_GrabBlock()
     {
         if (heldBlock != null)
@@ -451,12 +456,16 @@ public class RobotPickupController : MonoBehaviour
 
             canMoveBlock = true;
 
-            foreach (Collider col in ignoreCollidersWhenHolding)
+            // Store and ignore ALL colliders on the held block
+            heldBlockColliders = heldBlock.GetComponentsInChildren<Collider>();
+            Collider robotCollider = GetComponent<Collider>();
+
+            foreach (Collider blockCollider in heldBlockColliders)
             {
-                if (col != null)
+                if (blockCollider != null)
                 {
-                    Physics.IgnoreCollision(GetComponent<Collider>(), col, true);
-                    Debug.Log($"Ignoring collisions with {col.name}");
+                    Physics.IgnoreCollision(robotCollider, blockCollider, true);
+                    Debug.Log($"Ignoring collision with {blockCollider.name}");
                 }
             }
 
@@ -468,21 +477,26 @@ public class RobotPickupController : MonoBehaviour
         }
     }
 
-
     public void AnimationEvent_ReleaseBlock()
     {
-        if (heldBlock != null)
+        if (heldBlock != null && heldBlockColliders != null)
         {
-            foreach (Collider col in ignoreCollidersWhenHolding)
+            // Re-enable ALL colliders
+            Collider robotCollider = GetComponent<Collider>();
+
+            foreach (Collider blockCollider in heldBlockColliders)
             {
-                if (col != null)
+                if (blockCollider != null)
                 {
-                    Physics.IgnoreCollision(GetComponent<Collider>(), col, false);
-                    Debug.Log($"Re-enabling collisions with {col.name}");
+                    Physics.IgnoreCollision(robotCollider, blockCollider, false);
+                    Debug.Log($"Re-enabling collision with {blockCollider.name}");
                 }
             }
 
-            // Double-check validity (in case something changed during animation)
+            // Clear the array
+            heldBlockColliders = null;
+
+            // Double-check validity
             Vector3 previewPos;
             bool isValid;
             snappingSystem.GetPlacementInfo(heldBlock.transform.position, out previewPos, out isValid);
@@ -490,7 +504,6 @@ public class RobotPickupController : MonoBehaviour
             if (!isValid)
             {
                 Debug.LogWarning("Position became invalid during placement animation!");
-                // Return to holding state
                 animator.SetBool("isHolding", true);
                 return;
             }
@@ -512,7 +525,6 @@ public class RobotPickupController : MonoBehaviour
             else
             {
                 Debug.LogWarning("TryPlace failed despite valid preview!");
-                // Return to holding state
                 animator.SetBool("isHolding", true);
             }
         }
