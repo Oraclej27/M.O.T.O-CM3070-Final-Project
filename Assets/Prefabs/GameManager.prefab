@@ -1,0 +1,676 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1 &693098201210952970
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 979697388881811087}
+  - component: {fileID: 6431233312787877616}
+  - component: {fileID: 9015170525915953430}
+  m_Layer: 0
+  m_Name: PickUpTutorial
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &979697388881811087
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 693098201210952970}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 10.963478, y: -3.1510754, z: -11.639999}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 3560301082967454857}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!65 &6431233312787877616
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 693098201210952970}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 1
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 4, y: 4, z: 4}
+  m_Center: {x: 0, y: 0, z: 0}
+--- !u!114 &9015170525915953430
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 693098201210952970}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0d3323d7e5a1d0b42a552908a4d7d68e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  tutorialMessage: 'Space bar = Pick up & Place Block.   F = Toggle Block Immovable '
+  displayTime: 8
+  showOnce: 1
+  optionalKeyToPress: 0
+  tutorialText: {fileID: 0}
+--- !u!1 &1187954385651470094
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 3560301082967454857}
+  - component: {fileID: 5478867476541168001}
+  m_Layer: 0
+  m_Name: 'TutorialManager '
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &3560301082967454857
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1187954385651470094}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: -4.3734784, y: -6.288927, z: -9.099998}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children:
+  - {fileID: 8843923157216580294}
+  - {fileID: 979697388881811087}
+  - {fileID: 5246794386749348279}
+  - {fileID: 7869310289474643475}
+  - {fileID: 621985895881551724}
+  - {fileID: 6795450417791644633}
+  - {fileID: 7373976588346612830}
+  m_Father: {fileID: 2706198463650515802}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &5478867476541168001
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1187954385651470094}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bc4e3f30e65efc849b3b636edb726b4d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  tutorialPanel: {fileID: 0}
+  tutorialText: {fileID: 0}
+  skipButton: {fileID: 0}
+  defaultDisplayTime: 4
+  skipKey: 9
+  showMovementTutorial: 1
+  showPickupTutorial: 1
+  showStateTutorial: 1
+  showMagnetTutorial: 1
+--- !u!1 &1865194644631283622
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 7869310289474643475}
+  - component: {fileID: 4799765113703331666}
+  - component: {fileID: 696487646189371914}
+  m_Layer: 0
+  m_Name: MagnetTutorial
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &7869310289474643475
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1865194644631283622}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 33.353477, y: 2.9789267, z: 38.300003}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 3560301082967454857}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!65 &4799765113703331666
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1865194644631283622}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 1
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 4, y: 4, z: 4}
+  m_Center: {x: 0, y: 0, z: 0}
+--- !u!114 &696487646189371914
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1865194644631283622}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0d3323d7e5a1d0b42a552908a4d7d68e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  tutorialMessage: Magnet Can Be Picked Up.  R = Toggle On/Off
+  displayTime: 8
+  showOnce: 1
+  optionalKeyToPress: 0
+  tutorialText: {fileID: 0}
+--- !u!1 &4937111169457953830
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 6795450417791644633}
+  - component: {fileID: 6053469285292465716}
+  - component: {fileID: 2606241109659421660}
+  m_Layer: 0
+  m_Name: MarkerTutorial
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &6795450417791644633
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4937111169457953830}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 2.4834785, y: -3.1510754, z: 9.790001}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 3560301082967454857}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!65 &6053469285292465716
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4937111169457953830}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 1
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 12, y: 4, z: 5}
+  m_Center: {x: 0, y: 0, z: 0}
+--- !u!114 &2606241109659421660
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4937111169457953830}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0d3323d7e5a1d0b42a552908a4d7d68e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  tutorialMessage: 'Yellow Markers Are Hints '
+  displayTime: 8
+  showOnce: 1
+  optionalKeyToPress: 0
+  tutorialText: {fileID: 0}
+--- !u!1 &5545581798769261900
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 2706198463650515802}
+  - component: {fileID: 5180570517009295810}
+  m_Layer: 0
+  m_Name: GameManager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &2706198463650515802
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5545581798769261900}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: -6.1, y: 12, z: -98.4}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children:
+  - {fileID: 2155345236924483765}
+  - {fileID: 3560301082967454857}
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &5180570517009295810
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5545581798769261900}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f26486137cef49a4e960cf11210d1c25, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  pausePanel: {fileID: 0}
+  controlsPanel: {fileID: 0}
+  firstPauseButton: {fileID: 0}
+  firstControlsButton: {fileID: 0}
+  mainMenuSceneName: Menu
+  audioSource: {fileID: 0}
+  hoverSound: {fileID: 8300000, guid: 51031005fe86fe749bbacae65442f252, type: 3}
+  clickSound: {fileID: 8300000, guid: bf4f977c21049a7448d7ddc39cc04ab5, type: 3}
+  switchPanelSound: {fileID: 8300000, guid: 90bb9f3b7041c9d4b8dcdff2d3b8cbf2, type: 3}
+--- !u!1 &5905121417997887824
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 7373976588346612830}
+  - component: {fileID: 1363488566489396356}
+  - component: {fileID: 5148684209890261278}
+  m_Layer: 0
+  m_Name: AllignCameraTutorial (1)
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &7373976588346612830
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5905121417997887824}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: 0.42261827, z: -0, w: 0.9063079}
+  m_LocalPosition: {x: 15.7734785, y: -3.1510754, z: -11.099998}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 3560301082967454857}
+  m_LocalEulerAnglesHint: {x: 0, y: 50, z: 0}
+--- !u!65 &1363488566489396356
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5905121417997887824}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 1
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 20, y: 4, z: 4}
+  m_Center: {x: 0, y: 0, z: 0}
+--- !u!114 &5148684209890261278
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5905121417997887824}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0d3323d7e5a1d0b42a552908a4d7d68e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  tutorialMessage: Hold Right Click to Align Camera View
+  displayTime: 8
+  showOnce: 1
+  optionalKeyToPress: 0
+  tutorialText: {fileID: 0}
+--- !u!1 &6244372793917417880
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 621985895881551724}
+  - component: {fileID: 7984882453963388770}
+  - component: {fileID: 4971768421453179701}
+  m_Layer: 0
+  m_Name: AllignCameraTutorial
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &621985895881551724
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6244372793917417880}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: 0.86602545, z: -0, w: 0.49999994}
+  m_LocalPosition: {x: -12.026522, y: -3.1510754, z: -10.900002}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 3560301082967454857}
+  m_LocalEulerAnglesHint: {x: 0, y: 120, z: 0}
+--- !u!65 &7984882453963388770
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6244372793917417880}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 1
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 20, y: 4, z: 4}
+  m_Center: {x: 0, y: 0, z: 0}
+--- !u!114 &4971768421453179701
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6244372793917417880}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0d3323d7e5a1d0b42a552908a4d7d68e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  tutorialMessage: Hold Right Click to Align Camera View
+  displayTime: 8
+  showOnce: 1
+  optionalKeyToPress: 0
+  tutorialText: {fileID: 0}
+--- !u!1 &7635280856690274940
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 5246794386749348279}
+  - component: {fileID: 7619251826148054195}
+  - component: {fileID: 2092705100802249412}
+  m_Layer: 0
+  m_Name: PickUpTutorial (1)
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &5246794386749348279
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7635280856690274940}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: -22.176523, y: -3.1510754, z: 8.959999}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 3560301082967454857}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!65 &7619251826148054195
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7635280856690274940}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 1
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 4, y: 4, z: 4}
+  m_Center: {x: 0, y: 0, z: 0}
+--- !u!114 &2092705100802249412
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7635280856690274940}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0d3323d7e5a1d0b42a552908a4d7d68e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  tutorialMessage: 'Space bar = Pick up & Place Block.   F = Toggle Block Immovable '
+  displayTime: 8
+  showOnce: 1
+  optionalKeyToPress: 0
+  tutorialText: {fileID: 0}
+--- !u!1 &8855939263762427135
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 8843923157216580294}
+  - component: {fileID: 5798653809653900174}
+  - component: {fileID: 8545243114889415072}
+  m_Layer: 0
+  m_Name: 'MoveToturial '
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &8843923157216580294
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8855939263762427135}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 1.7434788, y: -3.1510754, z: -11.639999}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 3560301082967454857}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!65 &5798653809653900174
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8855939263762427135}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 1
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 4, y: 4, z: 4}
+  m_Center: {x: 0, y: 0, z: 0}
+--- !u!114 &8545243114889415072
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8855939263762427135}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0d3323d7e5a1d0b42a552908a4d7d68e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  tutorialMessage: Use Keys W.A.S.D to move.   Q.E =  Left & Right.  Shift = Speed
+  displayTime: 7
+  showOnce: 1
+  optionalKeyToPress: 0
+  tutorialText: {fileID: 0}
+--- !u!1001 &9050190497348971373
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 2706198463650515802}
+    m_Modifications:
+    - target: {fileID: 4074409816453743216, guid: 547be0f0a7c123a46935066dfffee99d, type: 3}
+      propertyPath: m_Name
+      value: BlockSystem
+      objectReference: {fileID: 0}
+    - target: {fileID: 6949598880559211480, guid: 547be0f0a7c123a46935066dfffee99d, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: -15.09466
+      objectReference: {fileID: 0}
+    - target: {fileID: 6949598880559211480, guid: 547be0f0a7c123a46935066dfffee99d, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: -9.720024
+      objectReference: {fileID: 0}
+    - target: {fileID: 6949598880559211480, guid: 547be0f0a7c123a46935066dfffee99d, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 109.69461
+      objectReference: {fileID: 0}
+    - target: {fileID: 6949598880559211480, guid: 547be0f0a7c123a46935066dfffee99d, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 6949598880559211480, guid: 547be0f0a7c123a46935066dfffee99d, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6949598880559211480, guid: 547be0f0a7c123a46935066dfffee99d, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6949598880559211480, guid: 547be0f0a7c123a46935066dfffee99d, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6949598880559211480, guid: 547be0f0a7c123a46935066dfffee99d, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6949598880559211480, guid: 547be0f0a7c123a46935066dfffee99d, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6949598880559211480, guid: 547be0f0a7c123a46935066dfffee99d, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: 547be0f0a7c123a46935066dfffee99d, type: 3}
+--- !u!4 &2155345236924483765 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 6949598880559211480, guid: 547be0f0a7c123a46935066dfffee99d, type: 3}
+  m_PrefabInstance: {fileID: 9050190497348971373}
+  m_PrefabAsset: {fileID: 0}
