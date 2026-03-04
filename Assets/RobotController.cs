@@ -218,7 +218,7 @@ public class RobotController : MonoBehaviour
         yield return new WaitForSeconds(hitAnimationDuration);
         anim.SetBool("Hit", false);
 
-        if (bumpCount >= 3)
+        if (bumpCount >= 6)
         {
             cameraController.FocusOnEmotion();
             anim.SetBool("Angry", true);

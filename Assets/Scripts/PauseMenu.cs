@@ -25,6 +25,7 @@ public class PauseMenu : MonoBehaviour
 
     private bool isPaused = false;
     private GameObject currentPanel;
+    private GameObject lastSelected;
 
     void Start()
     {
@@ -36,6 +37,13 @@ public class PauseMenu : MonoBehaviour
 
         if (audioSource == null)
             audioSource = gameObject.AddComponent<AudioSource>();
+
+        Button[] allButtons = FindObjectsByType<Button>(FindObjectsSortMode.None);
+
+        foreach (Button btn in allButtons)
+        {
+            btn.onClick.AddListener(PlayClickSound);
+        }
 
         // Find all buttons and add hover sounds
         AddHoverSoundsToAllButtons();
@@ -62,7 +70,23 @@ public class PauseMenu : MonoBehaviour
                 }
             }
         }
+
+        // Play hover sound when selection changes (keyboard/controller)
+        if (EventSystem.current != null)
+        {
+            GameObject selected = EventSystem.current.currentSelectedGameObject;
+
+            if (selected != null && selected != lastSelected)
+            {
+                if (selected.GetComponent<Button>() != null)
+                {
+                    PlayHoverSound();
+                    lastSelected = selected;
+                }
+            }
+        }
     }
+
 
     void AddHoverSoundsToAllButtons()
     {
@@ -86,7 +110,7 @@ public class PauseMenu : MonoBehaviour
         // Clear existing triggers
         trigger.triggers.Clear();
 
-        // Mouse hover
+        // Mouse hover (PointerEnter event)
         EventTrigger.Entry hoverEnter = new EventTrigger.Entry();
         hoverEnter.eventID = EventTriggerType.PointerEnter;
         hoverEnter.callback.AddListener((data) => { PlayHoverSound(); });
@@ -104,27 +128,6 @@ public class PauseMenu : MonoBehaviour
         click.callback.AddListener((data) => { PlayClickSound(); });
         trigger.triggers.Add(click);
     }
-
-    //public void PauseGame()
-    //{
-    //    isPaused = true;
-    //    Time.timeScale = 0f; // Freeze game time
-
-    //    // Show pause panel
-    //    pausePanel.SetActive(true);
-    //    controlsPanel.SetActive(false);
-    //    currentPanel = pausePanel;
-
-    //    // Set first selected button for keyboard navigation
-    //    if (firstPauseButton != null && EventSystem.current != null)
-    //        EventSystem.current.SetSelectedGameObject(firstPauseButton.gameObject);
-
-    //    // Unlock cursor for menu
-    //    Cursor.lockState = CursorLockMode.None;
-    //    Cursor.visible = true;
-
-    //    PlaySwitchPanelSound();
-    //}
 
     public void PauseGame()
     {
