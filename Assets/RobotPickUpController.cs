@@ -23,7 +23,7 @@ public class RobotPickupController : MonoBehaviour
     public float previewAlpha = 0.5f;
     //---------------------------------------------------------
 
-    private Block heldBlock;
+    public Block heldBlock;
     private Quaternion heldRotationOffset;
 
     //------------------------------------------
@@ -47,11 +47,13 @@ public class RobotPickupController : MonoBehaviour
 
     private Lever currentInteractionLever;
     private Collider[] heldBlockColliders;
+    private SoundController soundController;
 
 
     void Start()
     {
         animator = GetComponent<Animator>();
+        soundController = FindFirstObjectByType<SoundController>();
 
         if (placementPreviewPrefab != null)
         {
@@ -223,6 +225,9 @@ public class RobotPickupController : MonoBehaviour
 
         Debug.Log($"EVENT FIRED for lever: {currentInteractionLever.name}");
 
+        if (SoundController.Instance != null)
+            SoundController.Instance.PlayLeverPullSound();
+
         ikController.GrabLever(currentInteractionLever);
         currentInteractionLever.PullLever();
     }
@@ -257,7 +262,7 @@ public class RobotPickupController : MonoBehaviour
         }
     }
 
-    void DropBlock()
+    public void DropBlock()
     {
         if (heldBlock == null) return;
 
@@ -450,6 +455,9 @@ public class RobotPickupController : MonoBehaviour
     {
         if (heldBlock != null)
         {
+            if (SoundController.Instance != null)
+                SoundController.Instance.PlayPickupSound();
+
             heldBlock.OnPickup();
             GetComponent<RobotController>().isHoldingBlock = true;
             animator.SetBool("isHolding", true);
@@ -512,6 +520,9 @@ public class RobotPickupController : MonoBehaviour
 
             if (placed)
             {
+                if (SoundController.Instance != null)
+                    SoundController.Instance.PlayPlaceSound();
+
                 heldBlock = null;
                 canMoveBlock = false;
                 GetComponent<RobotController>().isHoldingBlock = false;
@@ -536,6 +547,7 @@ public class RobotPickupController : MonoBehaviour
         // Already transitioning to HoldBlock automatically
         Debug.Log("Pickup animation complete");
     }
+
 }
 
 

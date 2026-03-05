@@ -37,13 +37,19 @@ public class RobotController : MonoBehaviour
     public float angerDuration = 2.0f;
     public bool isHoldingBlock = false;
 
+    [Header("Recovery UI")]
+    public GameObject recoveryPrompt; // Drag your UI panel here
+    public float promptDisplayDelay = 1f;
+
     // INTERNAL STATE
     private Animator anim;
     private CharacterController controller;
     private string animationName;
     private Coroutine currentDanceCoroutine;
     private bool isDancing = false;
-  
+    private SoundController soundController;
+    private Coroutine promptCoroutine;
+
 
 
     // FIX: Track if we need to apply gravity during collapse
@@ -67,6 +73,10 @@ public class RobotController : MonoBehaviour
         anim = GetComponent<Animator>();
         controller = GetComponent<CharacterController>();
         anim.SetFloat("speedMultiplier", speed);
+        soundController = FindFirstObjectByType<SoundController>();
+
+        if (recoveryPrompt != null)
+            recoveryPrompt.SetActive(false);
     }
 
     void Update()
@@ -81,10 +91,18 @@ public class RobotController : MonoBehaviour
             bumpCooldown -= Time.deltaTime;
 
         // Check for recovery from fallen state via movement
-        if (currentState == RobotState.Fallen &&
-            (Input.GetAxis("Vertical") > 0.35f || Mathf.Abs(Input.GetAxis("Horizontal")) > 0.1f))
+        //if (currentState == RobotState.Fallen &&
+        //    (Input.GetAxis("Vertical") > 0.35f || Mathf.Abs(Input.GetAxis("Horizontal")) > 0.1f))
+        //{
+        //    StartCoroutine(RecoverFromFallen());
+        //}
+        if (currentState == RobotState.Fallen)
         {
-            StartCoroutine(RecoverFromFallen());
+            if (Input.GetAxis("Vertical") > 0.35f || Mathf.Abs(Input.GetAxis("Horizontal")) > 0.1f)
+            {
+                HideRecoveryPrompt();
+                StartCoroutine(RecoverFromFallen());
+            }
         }
 
         // Strafe inputs
@@ -168,6 +186,12 @@ public class RobotController : MonoBehaviour
         Vector3 finalMove = move + Vector3.up * verticalVelocity;
 
         controller.Move(finalMove * Time.deltaTime);
+
+        bool moving = Mathf.Abs(horizontal) > 0.1f || Mathf.Abs(vertical) > 0.1f;
+        float currentSpeed = Mathf.Abs(vertical) * speed; // Your current speed
+        float maxSpeed = speed; // Your max normal speed
+        if (soundController != null)
+            soundController.SetMoving(moving && controller.isGrounded, currentSpeed, maxSpeed);
     }
 
 
@@ -203,6 +227,9 @@ public class RobotController : MonoBehaviour
         if (currentState == RobotState.Fallen || isDancing || isHoldingBlock)
             return;
 
+        if (soundController != null)
+            soundController.PlayBumpSound();
+
         bumpCount++;
         Debug.Log("BUMP COUNT = " + bumpCount);
 
@@ -220,6 +247,9 @@ public class RobotController : MonoBehaviour
 
         if (bumpCount >= 6)
         {
+            if (soundController != null)
+                soundController.PlayAngrySound();
+
             cameraController.FocusOnEmotion();
             anim.SetBool("Angry", true);
             setEmotion(7);
@@ -243,6 +273,9 @@ public class RobotController : MonoBehaviour
         if (currentState == RobotState.Crying || currentState == RobotState.Fallen) return;
 
         ballHitCooldown = ballHitCooldownTime;
+
+        if (soundController != null)
+            soundController.PlayBallHitSound();
 
         ballHitCount++;
         Debug.Log($"BALL HIT #{ballHitCount}");
@@ -278,6 +311,9 @@ public class RobotController : MonoBehaviour
         robotColorManager.isRainbowCycles = true;
         setEmotion(8);
 
+        if (soundController != null)
+            soundController.PlayDanceSound();
+
         isDancing = true;
         currentDanceCoroutine = StartCoroutine(PlayAnimationMultipleTimes());
     }
@@ -291,6 +327,9 @@ public class RobotController : MonoBehaviour
 
         yield return new WaitForSeconds(hitAnimationDuration);
         anim.SetBool("Hit", false);
+
+        if (soundController != null)
+            soundController.PlayCrySound();
 
         // 2. Stop any active dance
         if (isDancing)
@@ -316,6 +355,15 @@ public class RobotController : MonoBehaviour
     // FIXED: Third hit with continuous gravity
     void ThirdHitFallWithGravity()
     {
+        if (soundController != null)
+            soundController.PlayFallSound();
+
+        RobotPickupController pickup = GetComponent<RobotPickupController>();
+        if (pickup != null && pickup.heldBlock != null)
+        {
+            // Force drop the block without animation
+            pickup.DropBlock();
+        }
         // Stop any active dance first
         if (isDancing)
         {
@@ -353,6 +401,16 @@ public class RobotController : MonoBehaviour
         anim.SetBool("FallBack", true);
         setEmotion(5);
         currentState = RobotState.Fallen;
+
+        if (promptCoroutine != null)
+            StopCoroutine(promptCoroutine);
+        promptCoroutine = StartCoroutine(ShowPromptAfterDelay());
+    }
+
+    IEnumerator ShowPromptAfterDelay()
+    {
+        yield return new WaitForSeconds(promptDisplayDelay);
+        ShowRecoveryPrompt();
     }
 
     IEnumerator MonitorGroundingDuringCollapse()
@@ -419,8 +477,13 @@ public class RobotController : MonoBehaviour
     // -------------------- RECOVERY SYSTEM (SIMPLIFIED) --------------------
     IEnumerator RecoverFromFallen()
     {
+        // Hide prompt immediately
+        HideRecoveryPrompt();
+
+        // Wait for stand-up animation to play
         yield return new WaitForSeconds(2.0f);
 
+        // Check if we're actually standing
         if (!anim.GetBool("FallBack"))
         {
             CompleteRecovery();
@@ -429,6 +492,7 @@ public class RobotController : MonoBehaviour
 
     void CompleteRecovery()
     {
+        HideRecoveryPrompt();
         // Stop any active dance
         if (isDancing)
         {
@@ -490,6 +554,20 @@ public class RobotController : MonoBehaviour
                 Debug.Log("Nuclear option: Raycast ground snap");
             }
         }
+    }
+
+    void ShowRecoveryPrompt()
+    {
+        if (recoveryPrompt != null && currentState == RobotState.Fallen)
+        {
+            recoveryPrompt.SetActive(true);
+        }
+    }
+
+    void HideRecoveryPrompt()
+    {
+        if (recoveryPrompt != null)
+            recoveryPrompt.SetActive(false);
     }
 
     // -------------------- UTILITIES --------------------
