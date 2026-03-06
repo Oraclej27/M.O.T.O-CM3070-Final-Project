@@ -13,7 +13,14 @@ public class MagnetController : MonoBehaviour
     [SerializeField] Color offColor = Color.gray;
     [SerializeField] Color onColor = Color.red;
 
+    private SoundController soundController;
+
     bool magnetActive = false;
+
+    private void Awake()
+    {
+       soundController = FindFirstObjectByType<SoundController>();
+    }
 
     void Update()
     {
@@ -51,6 +58,9 @@ public class MagnetController : MonoBehaviour
         magnetActive = !magnetActive;
         magnetRenderer.material.color =
             magnetActive ? onColor : offColor;
+
+        if (SoundController.Instance != null)
+            SoundController.Instance.PlayMagnetToggleSound();
     }
 }
 

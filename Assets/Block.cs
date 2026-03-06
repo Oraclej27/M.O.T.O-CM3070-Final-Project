@@ -26,6 +26,7 @@ public class Block : MonoBehaviour
     private Collider blockCollider;
     private Material ledMaterial;
     private Color currentLEDColor;
+    private SoundController soundController;
 
     // Connection system
     private List<Block> connectedBlocks = new List<Block>();
@@ -50,6 +51,7 @@ public class Block : MonoBehaviour
     {
         rb = GetComponent<Rigidbody>();
         blockCollider = GetComponent<Collider>();
+        soundController = FindFirstObjectByType<SoundController>();
 
         // Setup LED material
         if (ledRenderer != null)
@@ -83,6 +85,9 @@ public class Block : MonoBehaviour
         currentState = (currentState == BlockState.Movable)
             ? BlockState.Immovable
             : BlockState.Movable;
+
+        if (SoundController.Instance != null)
+            SoundController.Instance.PlayToggleStateSound();
 
         if (rb != null)
         {
@@ -121,6 +126,7 @@ public class Block : MonoBehaviour
 
         UpdateLEDColor();
     }
+
     // ==================== PRIVATE METHODS ====================
 
 

@@ -146,6 +146,9 @@ public class PauseMenu : MonoBehaviour
         Cursor.visible = true;
 
         PlaySwitchPanelSound();
+
+        if (SoundController.Instance != null)
+            SoundController.Instance.PauseMusic();
     }
 
     public void ResumeGame()
@@ -162,6 +165,9 @@ public class PauseMenu : MonoBehaviour
         Cursor.visible = false;
 
         PlayClickSound();
+
+        if (SoundController.Instance != null)
+            SoundController.Instance.ResumeMusic();
     }
 
     public void ShowControls()

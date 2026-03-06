@@ -156,6 +156,9 @@ public class WinStateUI : MonoBehaviour
             audioSource.PlayOneShot(winSound);
         else
             PlaySwitchPanelSound();
+
+        if (SoundController.Instance != null)
+            SoundController.Instance.PauseMusic(); // or StopMusic()
     }
 
     // Button methods
