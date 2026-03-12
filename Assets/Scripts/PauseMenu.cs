@@ -7,20 +7,20 @@ using System.Collections.Generic;
 public class PauseMenu : MonoBehaviour
 {
     [Header("Panels")]
-    public GameObject pausePanel; // Main pause panel
+    public GameObject pausePanel; 
     public GameObject controlsPanel;
-    public GameObject howToPlayPanel; // Controls sub-panel
+    public GameObject howToPlayPanel; 
 
     [Header("First Selected Buttons")]
-    public Button firstPauseButton; // Usually Resume button
+    public Button firstPauseButton; 
     public Button firstControlsButton;
-    public Button firstHowToButton;// Back button in controls panel
+    public Button firstHowToButton;
 
     [Header("Scene Management")]
     public string mainMenuSceneName = "MainMenu";
 
     [Header("UI References")]
-    public GameObject tutorialCanvas; // Drag your tutorial canvas here
+    public GameObject tutorialCanvas; 
     public GameObject pauseButton;
 
     [Header("Sounds")]
@@ -35,7 +35,6 @@ public class PauseMenu : MonoBehaviour
 
     void Start()
     {
-        // Ensure menus are hidden at start
         if (pausePanel != null)
             pausePanel.SetActive(false);
         if (controlsPanel != null)
@@ -43,14 +42,12 @@ public class PauseMenu : MonoBehaviour
         if (howToPlayPanel != null)
             howToPlayPanel.SetActive(false);
 
-        // Set up pause button
         if (pauseButton != null)
         {
             Button btn = pauseButton.GetComponent<Button>();
             if (btn != null)
                 btn.onClick.AddListener(PauseGame);
         }
-
 
         if (audioSource == null)
             audioSource = gameObject.AddComponent<AudioSource>();
@@ -61,8 +58,6 @@ public class PauseMenu : MonoBehaviour
         {
             btn.onClick.AddListener(PlayClickSound);
         }
-
-        // Find all buttons and add hover sounds
         AddHoverSoundsToAllButtons();
     }
 
@@ -76,7 +71,6 @@ public class PauseMenu : MonoBehaviour
             }
             else
             {
-                // If we're in controls panel, go back to pause panel
                 if (currentPanel == controlsPanel || currentPanel == howToPlayPanel)
                 {
                     HideSubPanels();
@@ -88,7 +82,6 @@ public class PauseMenu : MonoBehaviour
             }
         }
 
-        // Play hover sound when selection changes (keyboard/controller)
         if (EventSystem.current != null)
         {
             GameObject selected = EventSystem.current.currentSelectedGameObject;
@@ -107,7 +100,6 @@ public class PauseMenu : MonoBehaviour
 
     void AddHoverSoundsToAllButtons()
     {
-        // Find all buttons in the scene
         Button[] allButtons = FindObjectsByType<Button>(FindObjectsSortMode.None);
 
         foreach (Button btn in allButtons)
@@ -124,22 +116,18 @@ public class PauseMenu : MonoBehaviour
         if (trigger == null)
             trigger = button.gameObject.AddComponent<EventTrigger>();
 
-        // Clear existing triggers
         trigger.triggers.Clear();
 
-        // Mouse hover (PointerEnter event)
         EventTrigger.Entry hoverEnter = new EventTrigger.Entry();
         hoverEnter.eventID = EventTriggerType.PointerEnter;
         hoverEnter.callback.AddListener((data) => { PlayHoverSound(); });
         trigger.triggers.Add(hoverEnter);
 
-        // Keyboard / controller selection
         EventTrigger.Entry selectEvent = new EventTrigger.Entry();
         selectEvent.eventID = EventTriggerType.Select;
         selectEvent.callback.AddListener((data) => { PlayHoverSound(); });
         trigger.triggers.Add(selectEvent);
 
-        // Click event
         EventTrigger.Entry click = new EventTrigger.Entry();
         click.eventID = EventTriggerType.PointerClick;
         click.callback.AddListener((data) => { PlayClickSound(); });
@@ -177,7 +165,7 @@ public class PauseMenu : MonoBehaviour
     public void ResumeGame()
     {
         isPaused = false;
-        Time.timeScale = 1f; // Resume game time
+        Time.timeScale = 1f; 
 
         if (tutorialCanvas != null)
             tutorialCanvas.SetActive(true);
@@ -185,14 +173,12 @@ public class PauseMenu : MonoBehaviour
         if (pauseButton != null)
             pauseButton.SetActive(true);
 
-        // Hide all panels
         pausePanel.SetActive(false);
         controlsPanel.SetActive(false);
         howToPlayPanel.SetActive(false);
 
-        // Relock cursor for gameplay
-        Cursor.lockState = CursorLockMode.Locked;
-        Cursor.visible = false;
+        //Cursor.lockState = CursorLockMode.Locked;
+        //Cursor.visible = false;
 
         PlayClickSound();
 
@@ -207,7 +193,6 @@ public class PauseMenu : MonoBehaviour
         howToPlayPanel.SetActive(false);
         currentPanel = controlsPanel;
 
-        // Set first selected button in controls panel
         if (firstControlsButton != null && EventSystem.current != null)
             EventSystem.current.SetSelectedGameObject(firstControlsButton.gameObject);
 
@@ -242,19 +227,18 @@ public class PauseMenu : MonoBehaviour
 
     public void RestartLevel()
     {
-        Time.timeScale = 1f; // Resume time before loading
+        Time.timeScale = 1f;
         PlayClickSound();
         SceneManager.LoadScene(SceneManager.GetActiveScene().name);
     }
 
     public void GoToMainMenu()
     {
-        Time.timeScale = 1f; // Resume time before loading
+        Time.timeScale = 1f; 
         PlayClickSound();
         SceneManager.LoadScene(mainMenuSceneName);
     }
 
-    // Sound methods
     public void PlayHoverSound()
     {
         if (audioSource != null && hoverSound != null)

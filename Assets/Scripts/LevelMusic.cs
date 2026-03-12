@@ -6,7 +6,6 @@ public class LevelMusic : MonoBehaviour
 
     void Start()
     {
-        // This just holds the music clip
-        // The SoundController finds it automatically
+        // To hold the music clip
     }
 }

@@ -8,16 +8,15 @@ public class TutorialTrigger : MonoBehaviour
     public string tutorialMessage = "Press SPACE to pick up blocks";
     public float displayTime = 5f;
     public bool showOnce = true;
-    public KeyCode optionalKeyToPress = KeyCode.None; // If they need to press a key
+    public KeyCode optionalKeyToPress = KeyCode.None;
 
     [Header("UI Reference")]
-    public Text tutorialText; // Assign in Inspector or it will find it
+    public Text tutorialText;
 
     private bool hasBeenShown = false;
 
     void Start()
     {
-        // Find tutorial text if not assigned - UPDATED SYNTAX
         if (tutorialText == null)
         {
             TutorialManager tm = FindFirstObjectByType<TutorialManager>();
@@ -32,7 +31,6 @@ public class TutorialTrigger : MonoBehaviour
         {
             if (showOnce && hasBeenShown) return;
 
-            // UPDATED SYNTAX HERE TOO
             TutorialManager manager = FindFirstObjectByType<TutorialManager>();
             if (manager != null)
             {

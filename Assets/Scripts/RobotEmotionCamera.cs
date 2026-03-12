@@ -15,7 +15,7 @@ public class RobotEmotionCamera : MonoBehaviour
 
     [Header("References")]
     public Transform robot;
-    public Transform faceTarget; // Should be child of robot at head position
+    public Transform faceTarget;
 
     [Header("Camera States")]
     public CameraState normalState = new CameraState();
@@ -42,19 +42,6 @@ public class RobotEmotionCamera : MonoBehaviour
     public float shakeDuration = 0.2f;
     public float shakeStrength = 0.15f;
 
-    //[Header("Mouse Look")]
-    //public float mouseSensitivity = 2f;
-    //public float minPitch = -30f;
-    //public float maxPitch = 60f;
-    //public bool invertY = false;
-
-    //// Add these variables with your other private state
-    //private float mouseYaw;
-    //private float mousePitch;
-    //private float mouseYawVelocity;
-    //private float mousePitchVelocity;
-
-    // Private State
     private Camera cam;
     private float currentZoom;
     private float followYaw;
@@ -75,10 +62,6 @@ public class RobotEmotionCamera : MonoBehaviour
 
         currentZoom = normalState.offset.z;
         followYaw = robot.eulerAngles.y;
-
-        //mouseYaw = followYaw;
-        //mousePitch = 15f;
-
         targetFOV = normalState.fov;
 
         if (cam) cam.fieldOfView = targetFOV;
@@ -92,17 +75,13 @@ public class RobotEmotionCamera : MonoBehaviour
         UpdateZoom();
         UpdateEmotionTimer();
 
-        // Get current state settings
         CameraState state = isEmotionFocus ? emotionState : normalState;
 
-        // Update FOV
         targetFOV = state.fov;
         cam.fieldOfView = Mathf.SmoothDamp(cam.fieldOfView, targetFOV, ref fovVelocity, 0.3f);
 
-        // Calculate desired position
         Vector3 desiredPosition = CalculateDesiredPosition(state);
 
-        // Apply smooth position
         transform.position = Vector3.SmoothDamp(
             transform.position,
             desiredPosition + shakeOffset,
@@ -110,7 +89,6 @@ public class RobotEmotionCamera : MonoBehaviour
             1f / state.positionSmooth
         );
 
-        // Calculate and apply rotation
         Quaternion desiredRotation = CalculateDesiredRotation(state, desiredPosition);
         transform.rotation = SmoothDampRotation(transform.rotation, desiredRotation, ref rotationVelocity, 1f / state.rotationSmooth);
     }
@@ -120,18 +98,15 @@ public class RobotEmotionCamera : MonoBehaviour
         Vector3 offset = state.offset;
         offset.z = currentZoom;
 
-        // Apply follow yaw only in normal state when enabled
         if (state.useFollowYaw)
         {
             Quaternion yawRotation = Quaternion.Euler(0f, followYaw, 0f);
             offset = yawRotation * offset;
         }
 
-        // For emotion state, frame the face FROM THE FRONT
         if (isEmotionFocus && faceTarget)
         {
-            // KEY FIX: Use robot's forward direction for emotion framing
-            Quaternion faceRotation = Quaternion.LookRotation(-robot.forward); // Look at face FROM front
+            Quaternion faceRotation = Quaternion.LookRotation(-robot.forward); 
             offset = faceRotation * offset;
             return faceTarget.position + offset;
         }
@@ -144,38 +119,16 @@ public class RobotEmotionCamera : MonoBehaviour
         Vector3 lookTargetPosition = (isEmotionFocus && faceTarget) ? faceTarget.position : robot.position;
         Vector3 lookDirection = lookTargetPosition - desiredPosition;
 
-        // Special handling for emotion focus to avoid weird angles
         if (isEmotionFocus)
         {
-            // Keep camera mostly level, just look at face
             lookDirection.y = Mathf.Clamp(lookDirection.y, -0.3f, 0.3f);
         }
 
         return Quaternion.LookRotation(lookDirection);
     }
-    //Quaternion CalculateDesiredRotation(CameraState state, Vector3 desiredPosition)
-    //{
-    //    Vector3 lookTargetPosition = (isEmotionFocus && faceTarget) ? faceTarget.position : robot.position;
-
-    //    if (isEmotionFocus)
-    //    {
-    //        // Emotion focus - look directly at face
-    //        Vector3 lookDirection = lookTargetPosition - desiredPosition;
-    //        lookDirection.y = Mathf.Clamp(lookDirection.y, -0.3f, 0.3f);
-    //        return Quaternion.LookRotation(lookDirection);
-    //    }
-    //    else
-    //    {
-    //        // Normal mode - use mouse pitch for vertical look
-    //        Quaternion yawRotation = Quaternion.Euler(0f, followYaw, 0f);
-    //        Quaternion pitchRotation = Quaternion.Euler(mousePitch, 0f, 0f);
-    //        return yawRotation * pitchRotation;
-    //    }
-    //}
 
     void HandleInput()
     {
-        // Right-click recenter
         if (Input.GetMouseButton(0))
         {
             float targetYaw = robot.eulerAngles.y;
@@ -192,45 +145,10 @@ public class RobotEmotionCamera : MonoBehaviour
             }
         }
     }
-    //void HandleInput()
-    //{
-    //    if (isEmotionFocus) return; // Don't move camera during emotion focus
-
-    //    // Mouse look (only when right mouse button is held)
-    //    if (Input.GetMouseButton(1))
-    //    {
-    //        float mouseX = Input.GetAxis("Mouse X") * mouseSensitivity;
-    //        float mouseY = Input.GetAxis("Mouse Y") * mouseSensitivity * (invertY ? -1 : 1);
-
-    //        mouseYaw += mouseX;
-    //        mousePitch -= mouseY;
-
-    //        // Clamp pitch to prevent flipping
-    //        mousePitch = Mathf.Clamp(mousePitch, minPitch, maxPitch);
-
-    //        // Update followYaw with mouse Yaw
-    //        followYaw = mouseYaw;
-
-    //        timeSinceLastInput = 0f;
-    //    }
-    //    else if (autoRecenter)
-    //    {
-    //        timeSinceLastInput += Time.deltaTime;
-    //        if (timeSinceLastInput > autoRecenterDelay)
-    //        {
-    //            // Smoothly recenter to robot's forward
-    //            float targetYaw = robot.eulerAngles.y;
-    //            mouseYaw = Mathf.SmoothDampAngle(mouseYaw, targetYaw, ref mouseYawVelocity, 1f / recenterSpeed);
-    //            mousePitch = Mathf.SmoothDamp(mousePitch, 15f, ref mousePitchVelocity, 1f / recenterSpeed);
-
-    //            followYaw = mouseYaw;
-    //        }
-    //    }
-    //}
 
     void UpdateZoom()
     {
-        if (isEmotionFocus) return; // No zoom during emotion focus
+        if (isEmotionFocus) return; 
 
         float scroll = Input.mouseScrollDelta.y;
         if (Mathf.Abs(scroll) > 0.01f)
@@ -240,7 +158,6 @@ public class RobotEmotionCamera : MonoBehaviour
             timeSinceLastInput = 0f;
         }
 
-        // Keyboard zoom fallback
         float zoomInput = 0f;
         //if (Input.GetKey(KeyCode.R)) zoomInput += 1f;
         //if (Input.GetKey(KeyCode.F)) zoomInput -= 1f;
@@ -261,24 +178,19 @@ public class RobotEmotionCamera : MonoBehaviour
         if (emotionFocusTimer <= 0f)
         {
             isEmotionFocus = false;
-            // Gentle exit from emotion focus
             positionVelocity *= 0.3f;
         }
     }
 
-    // ----- PUBLIC INTERFACE -----
-
     public void FocusOnEmotion(float customDuration = 0f)
     {
         isEmotionFocus = true;
-        emotionFocusTimer = customDuration > 0 ? customDuration : 1.5f; // Default 1.5 seconds
+        emotionFocusTimer = customDuration > 0 ? customDuration : 1.5f; 
 
-        // Reset velocities for clean transition
         positionVelocity = Vector3.zero;
         rotationVelocity = Quaternion.identity;
         yawVelocity = 0f;
 
-        // Optional: Force camera behind robot after emotion
         followYaw = robot.eulerAngles.y;
     }
 
@@ -295,7 +207,6 @@ public class RobotEmotionCamera : MonoBehaviour
 
         while (elapsed < shakeDuration)
         {
-            // Decaying shake
             float decay = 1f - (elapsed / shakeDuration);
             shakeOffset = originalShakeOffset + Random.insideUnitSphere * (shakeStrength * strengthMultiplier * decay);
             elapsed += Time.deltaTime;
@@ -304,8 +215,6 @@ public class RobotEmotionCamera : MonoBehaviour
 
         shakeOffset = Vector3.zero;
     }
-
-    // ----- HELPER METHODS -----
 
     static Quaternion SmoothDampRotation(Quaternion current, Quaternion target, ref Quaternion velocity, float smoothTime)
     {
@@ -328,12 +237,11 @@ public class RobotEmotionCamera : MonoBehaviour
         return new Quaternion(result.x, result.y, result.z, result.w);
     }
 
-    // ----- DEBUG GIZMOS -----
+    // Debug -- 
     void OnDrawGizmosSelected()
     {
         if (!robot) return;
 
-        // Draw emotion focus target
         if (faceTarget)
         {
             Gizmos.color = Color.yellow;
@@ -341,7 +249,6 @@ public class RobotEmotionCamera : MonoBehaviour
             Gizmos.DrawLine(robot.position, faceTarget.position);
         }
 
-        // Draw camera position preview
         if (Application.isPlaying)
         {
             CameraState state = isEmotionFocus ? emotionState : normalState;

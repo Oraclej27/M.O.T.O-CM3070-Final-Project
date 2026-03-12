@@ -4,7 +4,7 @@ using UnityEngine.Events;
 public class Lever : MonoBehaviour
 {
     [Header("Lever Settings")]
-    public Transform handTarget; // Where robot's hand should go
+    public Transform handTarget; 
     public float interactionRange = 2f;
     public LayerMask robotLayer;
 
@@ -17,7 +17,7 @@ public class Lever : MonoBehaviour
     public UnityEvent onLeverPulled;
 
     [Header("IK Hint")]
-    public Transform elbowHint; // Optional: helps arm bend correctly
+    public Transform elbowHint; 
 
     [Header("Box Connection")]
     public BoxContainer targetBox;
@@ -30,11 +30,9 @@ public class Lever : MonoBehaviour
 
         isPulled = true;
 
-        // Play lever animation
         if (leverAnimator != null)
             leverAnimator.SetTrigger(pullTriggerName);
 
-        // Invoke events
         onLeverPulled?.Invoke();
 
         Debug.Log("Lever pulled!");
@@ -42,15 +40,13 @@ public class Lever : MonoBehaviour
 
     public void TriggerBoxOpen()
     {
-        Debug.Log("Lever event: Telling box to open!");
-
         if (targetBox != null)
         {
-            targetBox.OpenContainer(); // Call the box's open method
+            targetBox.OpenContainer(); 
         }
         else
         {
-            Debug.LogError("No target box assigned to lever!");
+            Debug.LogError("No box assigned to lever!");
         }
     }
 
@@ -65,7 +61,6 @@ public class Lever : MonoBehaviour
             Gizmos.DrawSphere(handTarget.position, 0.1f);
             Gizmos.DrawLine(transform.position, handTarget.position);
 
-            // Draw hint for elbow
             if (elbowHint != null)
             {
                 Gizmos.color = Color.blue;

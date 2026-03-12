@@ -4,7 +4,6 @@ public class BallBounceHelper : MonoBehaviour
 {
     void OnCollisionEnter(Collision collision)
     {
-        // Just ensure ball keeps moving
         Rigidbody rb = GetComponent<Rigidbody>();
         if (rb.linearVelocity.magnitude < 3f)
         {
