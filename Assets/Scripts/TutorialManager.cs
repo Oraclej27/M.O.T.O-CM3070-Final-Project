@@ -24,18 +24,15 @@ public class TutorialManager : MonoBehaviour
 
     void Start()
     {
-        // Set up skip button
         if (skipButton != null)
             skipButton.onClick.AddListener(SkipTutorial);
 
-        // Hide panel at start
         if (tutorialPanel != null)
             tutorialPanel.SetActive(false);
     }
 
     void Update()
     {
-        // Optional: Press key to skip
         if (Input.GetKeyDown(skipKey))
             SkipTutorial();
     }
@@ -44,7 +41,6 @@ public class TutorialManager : MonoBehaviour
     {
         if (!tutorialActive) return;
 
-        // Add key press instruction if needed
         if (keyToPress != KeyCode.None)
             message += $"\nPress {keyToPress} to continue";
 
@@ -72,7 +68,5 @@ public class TutorialManager : MonoBehaviour
 
         if (currentMessage != null)
             StopCoroutine(currentMessage);
-
-        Debug.Log("Tutorial skipped");
     }
 }

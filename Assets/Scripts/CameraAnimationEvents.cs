@@ -2,7 +2,7 @@ using UnityEngine;
 
 public class CameraAnimationEvents : MonoBehaviour
 {
-    public BoxContainer boxContainer; // Drag your box here in Inspector
+    public BoxContainer boxContainer; 
 
     public void OnCameraAnimationComplete()
     {

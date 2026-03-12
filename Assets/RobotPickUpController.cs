@@ -9,28 +9,22 @@ public class RobotPickupController : MonoBehaviour
     public float pickupDistance = 3f;
     public LayerMask blockLayer;
 
-    //[Header("Collision Ignoring")]
-    //public Collider[] ignoreCollidersWhenHolding;
-
     [Header("Snapping")]
     public GridSnappingSystem snappingSystem;
 
-    //------------------------------------------------------------
     [Header("Placement Preview")]
     public GameObject placementPreviewPrefab; 
     public Color validColor = Color.green;
     public Color invalidColor = Color.red;
     public float previewAlpha = 0.5f;
-    //---------------------------------------------------------
 
     public Block heldBlock;
     private Quaternion heldRotationOffset;
 
-    //------------------------------------------
+  
     private GameObject previewInstance;
     private Renderer previewRenderer;
     private Material previewMaterial;
-    //---------------------------------------------
 
     [Header("Lever Interaction")]
     public LayerMask leverLayer;
@@ -40,10 +34,9 @@ public class RobotPickupController : MonoBehaviour
     private Lever nearbyLever;
     private bool isInteracting = false;
 
-    //-------------------------------------------
+  
     private Animator animator;
     private bool canMoveBlock = false;
-    //private string currentLeverID;
 
     private Lever currentInteractionLever;
     private Collider[] heldBlockColliders;
@@ -62,7 +55,7 @@ public class RobotPickupController : MonoBehaviour
         }
         else
         {
-            CreateSimplePreview();
+            CreatePreview();
         }
 
         previewInstance.SetActive(false);
@@ -81,16 +74,14 @@ public class RobotPickupController : MonoBehaviour
         }
     }
 
-    void CreateSimplePreview()
+    void CreatePreview()
     {
         previewInstance = GameObject.CreatePrimitive(PrimitiveType.Cube);
         previewInstance.name = "PlacementPreview";
-        previewInstance.transform.localScale = Vector3.one * 0.98f; // Slightly smaller than blocks
+        previewInstance.transform.localScale = Vector3.one * 0.98f; 
 
-        // Remove collider
         Destroy(previewInstance.GetComponent<Collider>());
 
-        // Create transparent material
         previewMaterial = new Material(Shader.Find("Standard"));
         previewMaterial.SetInt("_SrcBlend", (int)UnityEngine.Rendering.BlendMode.SrcAlpha);
         previewMaterial.SetInt("_DstBlend", (int)UnityEngine.Rendering.BlendMode.OneMinusSrcAlpha);
@@ -131,11 +122,10 @@ public class RobotPickupController : MonoBehaviour
        
         if (Input.GetKeyDown(KeyCode.Space))
         {
-            if (isInteracting) return; // Already interacting
+            if (isInteracting) return; 
 
             if (nearbyLever != null && heldBlock == null)
             {
-                // Interact with lever
                 StartLeverInteraction();
             }
             else if (heldBlock == null)
@@ -148,7 +138,6 @@ public class RobotPickupController : MonoBehaviour
             }
         }
 
-        // F = Toggle state only when not holding the block
         if (Input.GetKeyDown(KeyCode.F) && !heldBlock)
         {
             ToggleTargetBlock();
@@ -171,7 +160,7 @@ public class RobotPickupController : MonoBehaviour
             }
             else
             {
-                //Debug.Log($"No Lever component on {col.gameObject.name}");
+                //Debug.Log($"No Lever  on {col.gameObject.name}");
             }
         }
 
@@ -183,9 +172,7 @@ public class RobotPickupController : MonoBehaviour
         if (nearbyLever == null) return;
 
         isInteracting = true;
-        currentInteractionLever = nearbyLever; // STORED!!
-
-        Debug.Log($"Starting lever interaction with {currentInteractionLever.name}");
+        currentInteractionLever = nearbyLever;
 
         Vector3 toLever = (nearbyLever.handTarget.position - transform.position).normalized;
         toLever.y = 0;
@@ -215,7 +202,7 @@ public class RobotPickupController : MonoBehaviour
         onComplete?.Invoke();
     }
 
-    public void AnimationEvent_LeverPull()  //  No string parameter
+    public void AnimationEvent_LeverPull()
     {
         if (currentInteractionLever == null)
         {
@@ -236,7 +223,7 @@ public class RobotPickupController : MonoBehaviour
     {
         ikController.ReleaseLever();
         isInteracting = false;
-        currentInteractionLever = null; // CLEAR IT!
+        currentInteractionLever = null; 
         nearbyLever = null;
     }
 
@@ -248,14 +235,12 @@ public class RobotPickupController : MonoBehaviour
         {
             heldBlock = target;
 
-            //// Store relative rotation
             heldRotationOffset = Quaternion.Inverse(transform.rotation) * heldBlock.transform.rotation;
 
             canMoveBlock = false;
 
             animator.SetTrigger("Pickup");
             GetComponent<RobotController>().isHoldingBlock = true;
-
 
             if (previewInstance != null)
                 previewInstance.SetActive(false);
@@ -272,39 +257,30 @@ public class RobotPickupController : MonoBehaviour
 
         if (!isValid)
         {
-            Debug.Log("Cannot place here - position invalid");
             animator.SetTrigger("No");
-            // Optional: Play a "cannot place" sound/effect
-            return; // DON'T trigger animation
+            return; 
         }
         animator.SetTrigger("Place");
-      
     }
 
-    //--------------------------------
     void MoveHeldBlock()
     {
         heldBlock.transform.position = holdPoint.position;
         heldBlock.transform.rotation = transform.rotation * heldRotationOffset;
     }
-    //--------------------------------------------------------
-
 
     void UpdatePlacementPreview()
     {
         if (previewInstance == null || snappingSystem == null || heldBlock == null) return;
 
-        // Get where the block WOULD land if dropped NOW
         Vector3 previewPos;
         bool isValid;
 
         snappingSystem.GetPlacementInfo(heldBlock.transform.position, out previewPos, out isValid);
 
-        // Position the preview at the DROP location, not at the held block
         previewInstance.transform.position = previewPos;
         previewInstance.transform.rotation = heldBlock.transform.rotation;
 
-        // Update color based on validity
         if (previewMaterial != null)
         {
             Color previewColor = isValid ? validColor : invalidColor;
@@ -344,14 +320,12 @@ public class RobotPickupController : MonoBehaviour
             blockLayer
         );
 
-        // Pick the highest block (for stacking)
         Block highestBlock = null;
         float highestY = float.MinValue;
 
         foreach (RaycastHit hit in hits)
         {
             Block block = hit.collider.GetComponent<Block>();
-            // REMOVED state filter - F key should work on any block
             if (block != null && !block.isBeingHeld)
             {
                 float y = block.transform.position.y;
@@ -362,7 +336,6 @@ public class RobotPickupController : MonoBehaviour
                 }
             }
         }
-
         return highestBlock;
     }
 
@@ -371,85 +344,6 @@ public class RobotPickupController : MonoBehaviour
         if (previewInstance != null)
             Destroy(previewInstance);
     }
-
-    // Called by Animation Event at the exact frame hand touches block
-    //public void AnimationEvent_GrabBlock()
-    //{
-    //    if (heldBlock != null)
-    //    {
-    //        heldBlock.OnPickup();
-    //        GetComponent<RobotController>().isHoldingBlock = true;
-    //        animator.SetBool("isHolding", true);
-
-    //        canMoveBlock = true;
-
-    //        foreach (Collider col in ignoreCollidersWhenHolding)
-    //        {
-    //            if (col != null)
-    //            {
-    //                Physics.IgnoreCollision(GetComponent<Collider>(), col, true);
-    //                Debug.Log($"Ignoring collisions with {col.name}");
-    //            }
-    //        }
-
-    //        // Show preview AFTER block is grabbed
-    //        if (previewInstance != null)
-    //            previewInstance.SetActive(true);
-
-    //        Debug.Log("Animation Event: Grabbed block at exact frame");
-    //    }
-    //}
-
-
-    //public void AnimationEvent_ReleaseBlock()
-    //{
-    //    if (heldBlock != null)
-    //    {
-    //        foreach (Collider col in ignoreCollidersWhenHolding)
-    //        {
-    //            if (col != null)
-    //            {
-    //                Physics.IgnoreCollision(GetComponent<Collider>(), col, false);
-    //                Debug.Log($"Re-enabling collisions with {col.name}");
-    //            }
-    //        }
-
-    //        // Double-check validity (in case something changed during animation)
-    //        Vector3 previewPos;
-    //        bool isValid;
-    //        snappingSystem.GetPlacementInfo(heldBlock.transform.position, out previewPos, out isValid);
-
-    //        if (!isValid)
-    //        {
-    //            Debug.LogWarning("Position became invalid during placement animation!");
-    //            // Return to holding state
-    //            animator.SetBool("isHolding", true);
-    //            return;
-    //        }
-
-    //        bool placed = snappingSystem.TryPlace(heldBlock, heldBlock.transform.position);
-
-    //        if (placed)
-    //        {
-    //            heldBlock = null;
-    //            canMoveBlock = false;
-    //            GetComponent<RobotController>().isHoldingBlock = false;
-    //            animator.SetBool("isHolding", false);
-
-    //            if (previewInstance != null)
-    //                previewInstance.SetActive(false);
-
-    //            Debug.Log("Animation Event: Released block at exact frame");
-    //        }
-    //        else
-    //        {
-    //            Debug.LogWarning("TryPlace failed despite valid preview!");
-    //            // Return to holding state
-    //            animator.SetBool("isHolding", true);
-    //        }
-    //    }
-    //}
-    // Remove the public Collider[] ignoreCollidersWhenHolding array
 
     public void AnimationEvent_GrabBlock()
     {
@@ -464,7 +358,6 @@ public class RobotPickupController : MonoBehaviour
 
             canMoveBlock = true;
 
-            // Store and ignore ALL colliders on the held block
             heldBlockColliders = heldBlock.GetComponentsInChildren<Collider>();
             Collider robotCollider = GetComponent<Collider>();
 
@@ -477,11 +370,8 @@ public class RobotPickupController : MonoBehaviour
                 }
             }
 
-            // Show preview AFTER block is grabbed
             if (previewInstance != null)
                 previewInstance.SetActive(true);
-
-            Debug.Log("Animation Event: Grabbed block at exact frame");
         }
     }
 
@@ -489,7 +379,6 @@ public class RobotPickupController : MonoBehaviour
     {
         if (heldBlock != null && heldBlockColliders != null)
         {
-            // Re-enable ALL colliders
             Collider robotCollider = GetComponent<Collider>();
 
             foreach (Collider blockCollider in heldBlockColliders)
@@ -501,10 +390,8 @@ public class RobotPickupController : MonoBehaviour
                 }
             }
 
-            // Clear the array
             heldBlockColliders = null;
 
-            // Double-check validity
             Vector3 previewPos;
             bool isValid;
             snappingSystem.GetPlacementInfo(heldBlock.transform.position, out previewPos, out isValid);
@@ -530,23 +417,18 @@ public class RobotPickupController : MonoBehaviour
 
                 if (previewInstance != null)
                     previewInstance.SetActive(false);
-
-                Debug.Log("Animation Event: Released block at exact frame");
             }
             else
             {
-                Debug.LogWarning("TryPlace failed despite valid preview!");
                 animator.SetBool("isHolding", true);
             }
         }
     }
 
-    // Optional: Called when pickup animation completes
-    public void AnimationEvent_PickupComplete()
-    {
-        // Already transitioning to HoldBlock automatically
-        Debug.Log("Pickup animation complete");
-    }
+    //public void AnimationEvent_PickupComplete()
+    //{
+    //    Debug.Log("Pickup animation complete");
+    //}
 
 }
 

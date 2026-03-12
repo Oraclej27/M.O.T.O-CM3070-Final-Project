@@ -30,7 +30,7 @@ public class SoundController : MonoBehaviour
     public AudioClip leverPullSound;
 
     [Header("Movement")]
-    public AudioClip rollingSound; // Single looping sound
+    public AudioClip rollingSound; 
     public float rollingPitchMin = 0.8f;
     public float rollingPitchMax = 1.2f;
 
@@ -50,7 +50,6 @@ public class SoundController : MonoBehaviour
 
     void Awake()
     {
-        // Singleton pattern
         if (_instance != null && _instance != this)
         {
             Destroy(gameObject);
@@ -59,7 +58,6 @@ public class SoundController : MonoBehaviour
         _instance = this;
         DontDestroyOnLoad(gameObject);
 
-        // Setup audio sources
         if (musicSource == null)
             musicSource = gameObject.AddComponent<AudioSource>();
         if (sfxSource == null)
@@ -67,9 +65,8 @@ public class SoundController : MonoBehaviour
         if (voiceSource == null)
             voiceSource = gameObject.AddComponent<AudioSource>();
 
-        // Configure music source
         musicSource.loop = true;
-        musicSource.volume = musicVolume; // Use the slider value
+        musicSource.volume = musicVolume; 
         originalMusicVolume = musicVolume;
     }
 
@@ -85,7 +82,6 @@ public class SoundController : MonoBehaviour
 
     void OnSceneLoaded(UnityEngine.SceneManagement.Scene scene, UnityEngine.SceneManagement.LoadSceneMode mode)
     {
-        // When a new scene loads, look for LevelMusic in that scene
         LevelMusic levelMusic = FindFirstObjectByType<LevelMusic>();
         if (levelMusic != null && levelMusic.levelMusic != null)
         {
@@ -97,20 +93,8 @@ public class SoundController : MonoBehaviour
         }
     }
 
-    // Remove the old Start() method that was doing this
-    //void Start()
-    //{
-    //    // Try to find a LevelMusic component in the current scene
-    //    LevelMusic levelMusic = FindFirstObjectByType<LevelMusic>();
-    //    if (levelMusic != null && levelMusic.levelMusic != null)
-    //    {
-    //        ChangeBackgroundMusic(levelMusic.levelMusic);
-    //    }
-    //}
-
     void Update()
     {
-        // Rolling sound control
         if (isMoving != wasMoving)
         {
             if (isMoving)
@@ -129,87 +113,12 @@ public class SoundController : MonoBehaviour
         }
     }
 
-
-
-    // Call this from RobotController movement
-    // Call this from RobotController movement
     public void SetMoving(bool moving, float currentSpeed = 0, float maxSpeed = 1)
     {
         isMoving = moving;
         this.currentSpeed = currentSpeed;
         this.maxSpeed = maxSpeed;
     }
-
-
-    // Sound methods to call from other scripts
-    //public void PlayDanceSound()
-    //{
-    //    if (danceSounds.Length > 0)
-    //    {
-    //        AudioClip clip = danceSounds[Random.Range(0, danceSounds.Length)];
-    //        voiceSource.PlayOneShot(clip);
-    //    }
-    //}
-
-    //public void PlayCrySound()
-    //{
-    //    if (crySound != null)
-    //        voiceSource.PlayOneShot(crySound);
-    //}
-
-    //public void PlayFallSound()
-    //{
-    //    if (fallSound != null)
-    //        voiceSource.PlayOneShot(fallSound);
-    //}
-
-    //public void PlayAngrySound()
-    //{
-    //    if (angrySound != null)
-    //        voiceSource.PlayOneShot(angrySound);
-    //}
-
-    //public void PlayBumpSound()
-    //{
-    //    if (bumpSound != null)
-    //        sfxSource.PlayOneShot(bumpSound, 0.5f);
-    //}
-
-    //public void PlayBallHitSound()
-    //{
-    //    if (ballHitSound != null)
-    //        sfxSource.PlayOneShot(ballHitSound);
-    //}
-
-    //public void PlayPickupSound()
-    //{
-    //    if (pickupSound != null)
-    //        sfxSource.PlayOneShot(pickupSound);
-    //}
-
-    //public void PlayPlaceSound()
-    //{
-    //    if (placeSound != null)
-    //        sfxSource.PlayOneShot(placeSound);
-    //}
-
-    //public void PlayToggleStateSound()
-    //{
-    //    if (toggleStateSound != null)
-    //        sfxSource.PlayOneShot(toggleStateSound);
-    //}
-
-    //public void PlayMagnetToggleSound()
-    //{
-    //    if (magnetToggleSound != null)
-    //        sfxSource.PlayOneShot(magnetToggleSound);
-    //}
-
-    //public void PlayLeverPullSound()
-    //{
-    //    if (leverPullSound != null)
-    //        sfxSource.PlayOneShot(leverPullSound);
-    //}
     public void PlayDanceSound()
     {
         if (danceSounds.Length > 0)
@@ -282,13 +191,13 @@ public class SoundController : MonoBehaviour
     public void PauseMusic()
     {
         if (musicSource != null)
-            musicSource.volume = musicVolume * 0.3f; // Lower volume during pause
+            musicSource.volume = musicVolume * 0.3f; 
     }
 
     public void ResumeMusic()
     {
         if (musicSource != null)
-            musicSource.volume = musicVolume; // Restore normal volume
+            musicSource.volume = musicVolume; 
     }
 
     public void StopMusic()
@@ -310,8 +219,6 @@ public class SoundController : MonoBehaviour
         musicSource.Stop();
         musicSource.clip = newMusic;
 
-        //if (volume >= 0)
-        //    musicSource.volume = volume;
         musicSource.volume = volume >= 0 ? volume : musicVolume;
 
         musicSource.Play();

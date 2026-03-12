@@ -38,10 +38,9 @@ public class RobotController : MonoBehaviour
     public bool isHoldingBlock = false;
 
     [Header("Recovery UI")]
-    public GameObject recoveryPrompt; // Drag your UI panel here
+    public GameObject recoveryPrompt; 
     public float promptDisplayDelay = 1f;
 
-    // INTERNAL STATE
     private Animator anim;
     private CharacterController controller;
     private string animationName;
@@ -49,15 +48,9 @@ public class RobotController : MonoBehaviour
     private bool isDancing = false;
     private SoundController soundController;
     private Coroutine promptCoroutine;
-
-
-
-    // FIX: Track if we need to apply gravity during collapse
     private bool applyCollapseGravity = false;
     private Vector3 gravityVelocity = Vector3.zero;
-    private const float GRAVITY_FORCE = 20f; // Stronger than default gravity
-
-    // FSM-lite
+    private const float GRAVITY_FORCE = 20f; 
     private RobotState currentState = RobotState.Normal;
 
     enum RobotState
@@ -90,12 +83,6 @@ public class RobotController : MonoBehaviour
         if (bumpCooldown > 0f)
             bumpCooldown -= Time.deltaTime;
 
-        // Check for recovery from fallen state via movement
-        //if (currentState == RobotState.Fallen &&
-        //    (Input.GetAxis("Vertical") > 0.35f || Mathf.Abs(Input.GetAxis("Horizontal")) > 0.1f))
-        //{
-        //    StartCoroutine(RecoverFromFallen());
-        //}
         if (currentState == RobotState.Fallen)
         {
             if (Input.GetAxis("Vertical") > 0.35f || Mathf.Abs(Input.GetAxis("Horizontal")) > 0.1f)
@@ -105,7 +92,7 @@ public class RobotController : MonoBehaviour
             }
         }
 
-        // Strafe inputs
+        // Strafe 
         if (Input.GetKeyDown(KeyCode.Q))
             anim.SetBool("StrafeLeft", true);
         if (Input.GetKeyUp(KeyCode.Q))
@@ -116,7 +103,6 @@ public class RobotController : MonoBehaviour
         if (Input.GetKeyUp(KeyCode.E))
             anim.SetBool("StrafeRight", false);
 
-        // FIX: Apply gravity during collapsed state if in air
         if (applyCollapseGravity && !controller.isGrounded)
         {
             ApplyCollapseGravity();
@@ -124,7 +110,7 @@ public class RobotController : MonoBehaviour
 
     }
 
-    // FIX: Apply strong gravity during collapse
+    // Gravity during collapsed state in air
     void ApplyCollapseGravity()
     {
         if (controller.isGrounded)
@@ -134,17 +120,11 @@ public class RobotController : MonoBehaviour
             return;
         }
 
-        // Apply gravity
         gravityVelocity += Physics.gravity * GRAVITY_FORCE * Time.deltaTime;
 
-        // Move with CharacterController
         controller.Move(gravityVelocity * Time.deltaTime);
-
-        // Debug: Show we're falling
-        Debug.Log($"Applying collapse gravity. Velocity: {gravityVelocity.y:F2}, Position Y: {transform.position.y:F2}");
     }
 
-    // -------------------- MOVEMENT --------------------
     void HandleMovement()
     {
         if (currentState != RobotState.Normal && currentState != RobotState.Angry)
@@ -161,13 +141,12 @@ public class RobotController : MonoBehaviour
         anim.SetFloat("Side", horizontal);
         anim.SetFloat("Speed", vertical);
 
-        // Movement direction
         Vector3 move = transform.forward * vertical + transform.right * horizontal;
 
         if (controller.isGrounded)
         {
             if (verticalVelocity < 0)
-                verticalVelocity = groundStickForce; // keeps us glued to slopes
+                verticalVelocity = groundStickForce; // slopes
         }
         else
         {
@@ -188,8 +167,8 @@ public class RobotController : MonoBehaviour
         controller.Move(finalMove * Time.deltaTime);
 
         bool moving = Mathf.Abs(horizontal) > 0.1f || Mathf.Abs(vertical) > 0.1f;
-        float currentSpeed = Mathf.Abs(vertical) * speed; // Your current speed
-        float maxSpeed = speed; // Your max normal speed
+        float currentSpeed = Mathf.Abs(vertical) * speed; 
+        float maxSpeed = speed; 
         if (soundController != null)
             soundController.SetMoving(moving && controller.isGrounded, currentSpeed, maxSpeed);
     }
@@ -201,7 +180,6 @@ public class RobotController : MonoBehaviour
     //        anim.SetBool("Jump", true);
     //}
 
-    // -------------------- BUMP LOGIC --------------------
     private void OnControllerColliderHit(ControllerColliderHit hit)
     {
         if (currentState == RobotState.Fallen || isDancing) return;
@@ -264,10 +242,8 @@ public class RobotController : MonoBehaviour
         }
     }
 
-    // -------------------- BALL HIT LOGIC --------------------
     public void RegisterBallHit()
     {
-        // Protection against concurrent hits
         if (ballHitCooldown > 0f) return;
         if (isDancing) return;
         if (currentState == RobotState.Crying || currentState == RobotState.Fallen) return;
@@ -282,24 +258,20 @@ public class RobotController : MonoBehaviour
 
         if (ballHitCount == 1)
         {
-            // FIRST HIT: Dance only
             StartFirstHitDance();
         }
         else if (ballHitCount == 2)
         {
-            // SECOND HIT: Hit animation THEN crying
             StartCoroutine(SecondHitCrySequence());
         }
         else if (ballHitCount >= 3)
         {
-            // THIRD HIT: Fall immediately - WITH CONTINUOUS GRAVITY
             ThirdHitFallWithGravity();
         }
     }
 
     void StartFirstHitDance()
     {
-        // Stop any existing dance first
         if (currentDanceCoroutine != null)
         {
             StopCoroutine(currentDanceCoroutine);
@@ -320,7 +292,6 @@ public class RobotController : MonoBehaviour
 
     IEnumerator SecondHitCrySequence()
     {
-        // 1. Play hit animation
         anim.SetBool("Hit", true);
         anim.SetInteger("vary", GetNextNumber(3));
         setEmotion(0);
@@ -331,13 +302,11 @@ public class RobotController : MonoBehaviour
         if (soundController != null)
             soundController.PlayCrySound();
 
-        // 2. Stop any active dance
         if (isDancing)
         {
             CleanUpDance();
         }
 
-        // 3. Start crying
         cameraController.Shake();
         cameraController.FocusOnEmotion();
         anim.SetBool("Cry", true);
@@ -346,13 +315,11 @@ public class RobotController : MonoBehaviour
 
         yield return new WaitForSeconds(2.0f);
 
-        // 4. Stop crying
         anim.SetBool("Cry", false);
         currentState = RobotState.Normal;
         setEmotion(0);
     }
 
-    // FIXED: Third hit with continuous gravity
     void ThirdHitFallWithGravity()
     {
         if (soundController != null)
@@ -361,16 +328,14 @@ public class RobotController : MonoBehaviour
         RobotPickupController pickup = GetComponent<RobotPickupController>();
         if (pickup != null && pickup.heldBlock != null)
         {
-            // Force drop the block without animation
             pickup.DropBlock();
         }
-        // Stop any active dance first
+  
         if (isDancing)
         {
             CleanUpDance();
         }
 
-        // Check if we're jumping/in air
         bool wasJumping = anim.GetBool("Jump");
 
         if (wasJumping)
@@ -379,25 +344,18 @@ public class RobotController : MonoBehaviour
             anim.SetBool("Jump", false);
         }
 
-        // Check if we're grounded
         if (!controller.isGrounded)
         {
-            Debug.Log($"Collapsing in air! Height: {transform.position.y:F2}. Will apply continuous gravity.");
-
-            // Enable gravity application
             applyCollapseGravity = true;
-            gravityVelocity = Vector3.zero; // Reset velocity
+            gravityVelocity = Vector3.zero; 
 
-            // Start a coroutine to monitor when we hit ground
             StartCoroutine(MonitorGroundingDuringCollapse());
         }
         else
         {
-            Debug.Log("Collapsing on ground.");
             applyCollapseGravity = false;
         }
 
-        // Play collapse animation
         anim.SetBool("FallBack", true);
         setEmotion(5);
         currentState = RobotState.Fallen;
@@ -415,30 +373,21 @@ public class RobotController : MonoBehaviour
 
     IEnumerator MonitorGroundingDuringCollapse()
     {
-        // Keep applying gravity until we're grounded
         while (!controller.isGrounded && currentState == RobotState.Fallen)
         {
-            // Extra strong downward force for dramatic fall
             controller.Move(Vector3.down * 5f * Time.deltaTime);
             yield return null;
         }
 
-        // Once grounded, stop gravity application
         if (controller.isGrounded)
         {
             applyCollapseGravity = false;
-            Debug.Log("Successfully grounded during collapse.");
-
-            // Optional: Small impact shake when hitting ground
             cameraController.Shake(0.3f);
         }
     }
 
-    // -------------------- DANCE ANIMATION --------------------
     IEnumerator PlayAnimationMultipleTimes()
     {
-        Debug.Log($"Dance starting. isDancing={isDancing}, playCount={playCount}");
-
         for (int i = 0; i < playCount; i++)
         {
             anim.SetBool(animationName, true);
@@ -453,14 +402,13 @@ public class RobotController : MonoBehaviour
     {
         if (!isDancing) return;
 
-        Debug.Log("Cleaning up dance");
         anim.SetBool("Dance1", false);
         robotColorManager.isRainbowCycles = false;
         resetEmo();
         isDancing = false;
     }
 
-    // -------------------- EMOTIONS --------------------
+    // Emotions 
     public void setEmotion(int emoNumber)
     {
         robotColorManager.ChangeBodyColor(emoNumber);
@@ -474,16 +422,12 @@ public class RobotController : MonoBehaviour
         anim.SetBool("reset", true);
     }
 
-    // -------------------- RECOVERY SYSTEM (SIMPLIFIED) --------------------
     IEnumerator RecoverFromFallen()
     {
-        // Hide prompt immediately
         HideRecoveryPrompt();
 
-        // Wait for stand-up animation to play
         yield return new WaitForSeconds(2.0f);
 
-        // Check if we're actually standing
         if (!anim.GetBool("FallBack"))
         {
             CompleteRecovery();
@@ -493,7 +437,6 @@ public class RobotController : MonoBehaviour
     void CompleteRecovery()
     {
         HideRecoveryPrompt();
-        // Stop any active dance
         if (isDancing)
         {
             CleanUpDance();
@@ -504,7 +447,6 @@ public class RobotController : MonoBehaviour
             }
         }
 
-        // Stop gravity application
         applyCollapseGravity = false;
         gravityVelocity = Vector3.zero;
 
@@ -514,7 +456,6 @@ public class RobotController : MonoBehaviour
         setEmotion(0);
         isDancing = false;
 
-        // Final ground check - if somehow still floating, force down
         if (!controller.isGrounded)
         {
             Debug.LogWarning("Still not grounded after recovery! Forcing down.");
@@ -528,12 +469,10 @@ public class RobotController : MonoBehaviour
 
     IEnumerator ForceFinalGroundCheck()
     {
-        // Try a few times to get grounded
         for (int i = 0; i < 10; i++)
         {
             if (!controller.isGrounded)
             {
-                // Apply strong downward force
                 controller.Move(Vector3.down * 10f * Time.deltaTime);
             }
             else
@@ -543,15 +482,13 @@ public class RobotController : MonoBehaviour
             yield return null;
         }
 
-        // Last resort: if still floating, use raycast to find ground
         if (!controller.isGrounded)
         {
             if (Physics.Raycast(transform.position, Vector3.down, out RaycastHit hit, 100f))
             {
                 Vector3 groundPos = hit.point;
-                groundPos.y += 0.05f; // Slight offset
+                groundPos.y += 0.05f; 
                 transform.position = groundPos;
-                Debug.Log("Nuclear option: Raycast ground snap");
             }
         }
     }
@@ -569,8 +506,7 @@ public class RobotController : MonoBehaviour
         if (recoveryPrompt != null)
             recoveryPrompt.SetActive(false);
     }
-
-    // -------------------- UTILITIES --------------------
+    // Utility ----
     int currentNumber = 0;
     public int GetNextNumber(int N)
     {

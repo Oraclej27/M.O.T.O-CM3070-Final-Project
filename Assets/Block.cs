@@ -20,24 +20,18 @@ public class Block : MonoBehaviour
     public bool isBeingHeld = false;
     public bool isGrounded = false;
 
-
-    // Private references
     private Rigidbody rb;
     private Collider blockCollider;
     private Material ledMaterial;
     private Color currentLEDColor;
     private SoundController soundController;
-
-    // Connection system
     private List<Block> connectedBlocks = new List<Block>();
-    //private HashSet<Block> snappedTo = new HashSet<Block>();
-    private float connectionCheckDistance = 1.1f; // For scanning adjacent blocks
+    private float connectionCheckDistance = 1.1f; 
 
-    // State management
     public enum BlockState
     {
-        Movable,    // Normal physics, can be picked up
-        Immovable   // Fixed position, acts as wall/floor
+        Movable,    
+        Immovable   
     }
 
     public enum BlockType
@@ -53,7 +47,6 @@ public class Block : MonoBehaviour
         blockCollider = GetComponent<Collider>();
         soundController = FindFirstObjectByType<SoundController>();
 
-        // Setup LED material
         if (ledRenderer != null)
         {
             ledMaterial = new Material(ledRenderer.material);
@@ -77,11 +70,8 @@ public class Block : MonoBehaviour
         }
     }
 
-    // ==================== PUBLIC METHODS ====================
-
     public void ToggleState()
     {
-        // Switch between Movable and Immovable
         currentState = (currentState == BlockState.Movable)
             ? BlockState.Immovable
             : BlockState.Movable;
@@ -100,7 +90,6 @@ public class Block : MonoBehaviour
         Debug.Log($"{gameObject.name} toggled to {currentState}");
     }
 
-    //---------------------------------------------------
     public void OnPickup()
     {
         isBeingHeld = true;
@@ -113,22 +102,14 @@ public class Block : MonoBehaviour
 
         UpdateLEDColor();
     }
-    //------------------------------------------------------
 
-
-   
     public void OnPlaced()
     {
         isBeingHeld = false;
 
-        // Restore physics for movable blocks
         UpdatePhysicsState();
-
         UpdateLEDColor();
     }
-
-    // ==================== PRIVATE METHODS ====================
-
 
     void UpdatePhysicsState()
     {
@@ -143,7 +124,7 @@ public class Block : MonoBehaviour
             rb.linearDamping = 0.5f;
             rb.angularDamping = 0.5f;
         }
-        else // Immovable
+        else 
         {
             rb.isKinematic = true;
             rb.constraints = RigidbodyConstraints.FreezeAll;
@@ -169,7 +150,6 @@ public class Block : MonoBehaviour
         if (isBeingHeld)
         {
             targetColor = heldColor;
-            // Pulse when held
             float pulse = Mathf.PingPong(Time.time * 2f, 0.3f) + 0.7f;
             targetColor *= pulse;
         }
@@ -193,11 +173,9 @@ public class Block : MonoBehaviour
         isGrounded = Physics.Raycast(rayStart, Vector3.down, checkDistance);
     }
 
-    // ==================== EDITOR & DEBUG ====================
-
+    // Debug----
     void OnDrawGizmosSelected()
     {
-        // Connection lines (green)
         Gizmos.color = Color.green;
         foreach (Block connectedBlock in connectedBlocks)
         {
@@ -207,15 +185,12 @@ public class Block : MonoBehaviour
             }
         }
 
-        // State indicator (red/green wireframe)
         Gizmos.color = (currentState == BlockState.Movable) ? Color.green : Color.red;
         Gizmos.DrawWireCube(transform.position, Vector3.one * 1.05f);
 
-        // Connection scan radius (cyan - semi-transparent)
         Gizmos.color = new Color(0, 1, 1, 0.2f);
         Gizmos.DrawWireSphere(transform.position, connectionCheckDistance);
 
-        // Ground check ray
         Gizmos.color = isGrounded ? Color.yellow : Color.gray;
         if (blockCollider != null)
         {
@@ -238,7 +213,6 @@ public class Block : MonoBehaviour
 
     void OnValidate()
     {
-        // Preview color in editor (non-play mode only)
         if (ledRenderer != null && ledRenderer.sharedMaterial != null && !Application.isPlaying)
         {
             Material tempMat = new Material(ledRenderer.sharedMaterial);

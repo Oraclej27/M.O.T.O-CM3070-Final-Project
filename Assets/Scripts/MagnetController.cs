@@ -32,9 +32,7 @@ public class MagnetController : MonoBehaviour
 
     void FixedUpdate()
     {
-        // to only apply the force if magniet is active
         if (!magnetActive) return;
-        // look for all subscribed objects "magnitized" objects 
         MagnetizableObject[] objects =
      FindObjectsByType<MagnetizableObject>(FindObjectsSortMode.None);
 
@@ -44,9 +42,8 @@ public class MagnetController : MonoBehaviour
             float distance = direction.magnitude;
 
             if (distance > maxRange) continue;
-            // normalize distance into 0-1 range 
+ 
             float t = Mathf.InverseLerp(maxRange, minDistance, distance);
-            // calculate force using falloff 
             float forceAmount = strength * falloffCurve.Evaluate(t);
 
             obj.ApplyMagneticForce(direction.normalized * forceAmount);

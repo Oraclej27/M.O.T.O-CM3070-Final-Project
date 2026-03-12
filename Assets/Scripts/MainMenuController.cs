@@ -15,8 +15,9 @@ public class MainMenuController : MonoBehaviour
     public Button firstControlsButton;
     public Button firstHowToButton;
 
-    [Header("First Level")]
+    [Header("Scenes")]
     public string level1SceneName = "Level1";
+    public string tutorialSceneName = "TutorialLevel"; 
 
     [Header("Sounds")]
     public AudioSource audioSource;
@@ -47,11 +48,8 @@ public class MainMenuController : MonoBehaviour
         }
     }
 
-    // No Update method needed! Unity handles keyboard automatically
-
     void AddHoverSoundsToAllButtons()
     {
-        // Find all buttons in the scene
         Button[] allButtons = FindObjectsByType<Button>(FindObjectsSortMode.None);
 
         foreach (Button btn in allButtons)
@@ -68,22 +66,18 @@ public class MainMenuController : MonoBehaviour
         if (trigger == null)
             trigger = button.gameObject.AddComponent<EventTrigger>();
 
-        // Clear existing triggers
         trigger.triggers.Clear();
 
-        // Mouse hover
         EventTrigger.Entry hoverEnter = new EventTrigger.Entry();
         hoverEnter.eventID = EventTriggerType.PointerEnter;
         hoverEnter.callback.AddListener((data) => { PlayHoverSound(); });
         trigger.triggers.Add(hoverEnter);
 
-        // Keyboard / controller selection
         EventTrigger.Entry selectEvent = new EventTrigger.Entry();
         selectEvent.eventID = EventTriggerType.Select;
         selectEvent.callback.AddListener((data) => { PlayHoverSound(); });
         trigger.triggers.Add(selectEvent);
 
-        // Click event
         EventTrigger.Entry click = new EventTrigger.Entry();
         click.eventID = EventTriggerType.PointerClick;
         click.callback.AddListener((data) => { PlayClickSound(); });
@@ -121,6 +115,11 @@ public class MainMenuController : MonoBehaviour
         PlaySwitchPanelSound();
     }
 
+    public void PlayTutorial() 
+    {
+        SceneManager.LoadScene(tutorialSceneName);
+    }
+
     public void PlayGame()
     {
         SceneManager.LoadScene(level1SceneName);
@@ -135,7 +134,6 @@ public class MainMenuController : MonoBehaviour
 #endif
     }
 
-    // Sound methods
     public void PlayHoverSound()
     {
         if (audioSource != null && hoverSound != null)
