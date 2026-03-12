@@ -18,6 +18,9 @@ public class WinStateUI : MonoBehaviour
     public string nextLevelName; // "Level2" for Level1, "MainMenu" for Level2
     public bool isLastLevel = false; // Check if this is the final level
 
+    [Header("UI References")]
+    public GameObject tutorialCanvas; // Drag your tutorial canvas here
+
     [Header("Sounds")]
     public AudioSource audioSource;
     public AudioClip hoverSound;
@@ -137,6 +140,8 @@ public class WinStateUI : MonoBehaviour
     // Call this from BallSpawner when ball enters win tube
     public void ShowWinScreen()
     {
+        if (tutorialCanvas != null)
+            tutorialCanvas.SetActive(false);
         // Pause the game
         Time.timeScale = 0f;
 

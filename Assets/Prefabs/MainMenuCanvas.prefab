@@ -1011,6 +1011,7 @@ MonoBehaviour:
   firstControlsButton: {fileID: 2153671211283241459}
   firstHowToButton: {fileID: 8881019869264616550}
   level1SceneName: Level1
+  tutorialSceneName: TutorialLevel
   audioSource: {fileID: 2348602267144645695}
   hoverSound: {fileID: 8300000, guid: 51031005fe86fe749bbacae65442f252, type: 3}
   clickSound: {fileID: 8300000, guid: ca880d2d72315b541ba7737f7c51fa7c, type: 3}
@@ -1177,10 +1178,12 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: "M.O.T.O\n is a the newest prototype in Magnetic object Transfer Operations
-    Robotics. Designed to solve equipment issues in dangerous envirements , your
-    task is to help M.O.T.O pass it's tests. If you can get the magnetic ball to
-    go through the green tunnel you will davance to the next level. "
+  m_text: 'M.O.T.O
+
+    is the newest prototype in Magnetic Object Transfer Operations
+    Robotics. Designed to solve equipment issues in dangerous envirements. Your task
+    is to help M.O.T.O pass it''s tests. If you can get the magnetic ball to go through
+    the green tunnel you will davance to the next level. '
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}

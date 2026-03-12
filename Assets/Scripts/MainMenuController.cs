@@ -15,8 +15,9 @@ public class MainMenuController : MonoBehaviour
     public Button firstControlsButton;
     public Button firstHowToButton;
 
-    [Header("First Level")]
+    [Header("Scenes")]
     public string level1SceneName = "Level1";
+    public string tutorialSceneName = "TutorialLevel"; // Add this
 
     [Header("Sounds")]
     public AudioSource audioSource;
@@ -119,6 +120,11 @@ public class MainMenuController : MonoBehaviour
         currentPanel = howToPlayPanel;
         EventSystem.current.SetSelectedGameObject(firstHowToButton.gameObject);
         PlaySwitchPanelSound();
+    }
+
+    public void PlayTutorial() 
+    {
+        SceneManager.LoadScene(tutorialSceneName);
     }
 
     public void PlayGame()

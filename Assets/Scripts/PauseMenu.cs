@@ -8,14 +8,20 @@ public class PauseMenu : MonoBehaviour
 {
     [Header("Panels")]
     public GameObject pausePanel; // Main pause panel
-    public GameObject controlsPanel; // Controls sub-panel
+    public GameObject controlsPanel;
+    public GameObject howToPlayPanel; // Controls sub-panel
 
     [Header("First Selected Buttons")]
     public Button firstPauseButton; // Usually Resume button
-    public Button firstControlsButton; // Back button in controls panel
+    public Button firstControlsButton;
+    public Button firstHowToButton;// Back button in controls panel
 
     [Header("Scene Management")]
     public string mainMenuSceneName = "MainMenu";
+
+    [Header("UI References")]
+    public GameObject tutorialCanvas; // Drag your tutorial canvas here
+    public GameObject pauseButton;
 
     [Header("Sounds")]
     public AudioSource audioSource;
@@ -34,6 +40,17 @@ public class PauseMenu : MonoBehaviour
             pausePanel.SetActive(false);
         if (controlsPanel != null)
             controlsPanel.SetActive(false);
+        if (howToPlayPanel != null)
+            howToPlayPanel.SetActive(false);
+
+        // Set up pause button
+        if (pauseButton != null)
+        {
+            Button btn = pauseButton.GetComponent<Button>();
+            if (btn != null)
+                btn.onClick.AddListener(PauseGame);
+        }
+
 
         if (audioSource == null)
             audioSource = gameObject.AddComponent<AudioSource>();
@@ -60,9 +77,9 @@ public class PauseMenu : MonoBehaviour
             else
             {
                 // If we're in controls panel, go back to pause panel
-                if (currentPanel == controlsPanel)
+                if (currentPanel == controlsPanel || currentPanel == howToPlayPanel)
                 {
-                    HideControls();
+                    HideSubPanels();
                 }
                 else
                 {
@@ -133,10 +150,16 @@ public class PauseMenu : MonoBehaviour
     {
         isPaused = true;
         Time.timeScale = 0f;
-        Debug.Log($"Game Paused - Time.timeScale: {Time.timeScale}"); // Should be 0
+
+        if (tutorialCanvas != null)
+            tutorialCanvas.SetActive(false);
+
+        if (pauseButton != null)
+            pauseButton.SetActive(false);
 
         pausePanel.SetActive(true);
         controlsPanel.SetActive(false);
+        howToPlayPanel.SetActive(false);
         currentPanel = pausePanel;
 
         if (firstPauseButton != null && EventSystem.current != null)
@@ -156,9 +179,16 @@ public class PauseMenu : MonoBehaviour
         isPaused = false;
         Time.timeScale = 1f; // Resume game time
 
+        if (tutorialCanvas != null)
+            tutorialCanvas.SetActive(true);
+
+        if (pauseButton != null)
+            pauseButton.SetActive(true);
+
         // Hide all panels
         pausePanel.SetActive(false);
         controlsPanel.SetActive(false);
+        howToPlayPanel.SetActive(false);
 
         // Relock cursor for gameplay
         Cursor.lockState = CursorLockMode.Locked;
@@ -174,6 +204,7 @@ public class PauseMenu : MonoBehaviour
     {
         pausePanel.SetActive(false);
         controlsPanel.SetActive(true);
+        howToPlayPanel.SetActive(false);
         currentPanel = controlsPanel;
 
         // Set first selected button in controls panel
@@ -183,13 +214,26 @@ public class PauseMenu : MonoBehaviour
         PlaySwitchPanelSound();
     }
 
-    public void HideControls()
+    public void ShowHowToPlay()
+    {
+        pausePanel.SetActive(false);
+        controlsPanel.SetActive(false);
+        howToPlayPanel.SetActive(true);
+        currentPanel = howToPlayPanel;
+
+        if (firstHowToButton != null && EventSystem.current != null)
+            EventSystem.current.SetSelectedGameObject(firstHowToButton.gameObject);
+
+        PlaySwitchPanelSound();
+    }
+
+    public void HideSubPanels()
     {
         controlsPanel.SetActive(false);
+        howToPlayPanel.SetActive(false);
         pausePanel.SetActive(true);
         currentPanel = pausePanel;
 
-        // Restore selection to main pause button
         if (firstPauseButton != null && EventSystem.current != null)
             EventSystem.current.SetSelectedGameObject(firstPauseButton.gameObject);
 
