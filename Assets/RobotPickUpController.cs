@@ -1,47 +1,56 @@
+// =============================================
+// Script: RobotPickupController.cs
+// Purpose: Handles block handling as well as interacting with levers. 
+//
+// Communicates with:
+//   - RobotController: Sets IsHoldingBlock property.
+//   - Block: Calls OnPickup() and OnPlaced().
+//   - GridSnappingSystem: Uses TryPlace() and GetPlacementInfo() for block placement.
+//   - RobotIKController: Calls GrabLever() and ReleaseLever().
+//   - Lever: Calls PullLever() via animation events.
+//   - SoundController: Plays pickup, place, and lever sounds.
+//
+// Usage: Attached to the robot GameObject.
+// =============================================
 using UnityEngine;
 using System.Collections;
-
 
 public class RobotPickupController : MonoBehaviour
 {
     [Header("Pickup Settings")]
-    public Transform holdPoint;
-    public float pickupDistance = 3f;
-    public LayerMask blockLayer;
+    [SerializeField] private Transform holdPoint;
+    [SerializeField] private float pickupDistance = 3f;
+    [SerializeField] private LayerMask blockLayer;
 
     [Header("Snapping")]
-    public GridSnappingSystem snappingSystem;
+    [SerializeField] private GridSnappingSystem snappingSystem;
 
     [Header("Placement Preview")]
-    public GameObject placementPreviewPrefab; 
-    public Color validColor = Color.green;
-    public Color invalidColor = Color.red;
-    public float previewAlpha = 0.5f;
+    [SerializeField] private GameObject placementPreviewPrefab;
+    [SerializeField] private Color validColor = Color.green;
+    [SerializeField] private Color invalidColor = Color.red;
+    [SerializeField] private float previewAlpha = 0.5f;
 
-    public Block heldBlock;
+    public Block HeldBlock { get; private set; }
     private Quaternion heldRotationOffset;
 
-  
     private GameObject previewInstance;
     private Renderer previewRenderer;
     private Material previewMaterial;
 
     [Header("Lever Interaction")]
-    public LayerMask leverLayer;
-    public float leverInteractionRange = 3f;
-    public RobotIKController ikController;
+    [SerializeField] private LayerMask leverLayer;
+    [SerializeField] private float leverInteractionRange = 3f;
+    [SerializeField] private RobotIKController ikController;
 
     private Lever nearbyLever;
     private bool isInteracting = false;
 
-  
     private Animator animator;
     private bool canMoveBlock = false;
-
     private Lever currentInteractionLever;
     private Collider[] heldBlockColliders;
     private SoundController soundController;
-
 
     void Start()
     {
@@ -78,7 +87,7 @@ public class RobotPickupController : MonoBehaviour
     {
         previewInstance = GameObject.CreatePrimitive(PrimitiveType.Cube);
         previewInstance.name = "PlacementPreview";
-        previewInstance.transform.localScale = Vector3.one * 0.98f; 
+        previewInstance.transform.localScale = Vector3.one * 0.98f;
 
         Destroy(previewInstance.GetComponent<Collider>());
 
@@ -98,12 +107,12 @@ public class RobotPickupController : MonoBehaviour
     {
         HandleInput();
 
-        if (!isInteracting && heldBlock == null)
+        if (!isInteracting && HeldBlock == null)
         {
             CheckForNearbyLever();
         }
 
-        if (heldBlock != null)
+        if (HeldBlock != null)
         {
             if (canMoveBlock)
             {
@@ -119,16 +128,15 @@ public class RobotPickupController : MonoBehaviour
 
     void HandleInput()
     {
-       
         if (Input.GetKeyDown(KeyCode.Space))
         {
-            if (isInteracting) return; 
+            if (isInteracting) return;
 
-            if (nearbyLever != null && heldBlock == null)
+            if (nearbyLever != null && HeldBlock == null)
             {
                 StartLeverInteraction();
             }
-            else if (heldBlock == null)
+            else if (HeldBlock == null)
             {
                 TryPickup();
             }
@@ -138,7 +146,7 @@ public class RobotPickupController : MonoBehaviour
             }
         }
 
-        if (Input.GetKeyDown(KeyCode.F) && !heldBlock)
+        if (Input.GetKeyDown(KeyCode.F) && !HeldBlock)
         {
             ToggleTargetBlock();
         }
@@ -158,12 +166,7 @@ public class RobotPickupController : MonoBehaviour
                 nearbyLever = lever;
                 return;
             }
-            else
-            {
-                //Debug.Log($"No Lever  on {col.gameObject.name}");
-            }
         }
-
         nearbyLever = null;
     }
 
@@ -174,7 +177,7 @@ public class RobotPickupController : MonoBehaviour
         isInteracting = true;
         currentInteractionLever = nearbyLever;
 
-        Vector3 toLever = (nearbyLever.handTarget.position - transform.position).normalized;
+        Vector3 toLever = (nearbyLever.HandTarget.position - transform.position).normalized;
         toLever.y = 0;
 
         StartCoroutine(RotateToFace(toLever, () => {
@@ -223,7 +226,7 @@ public class RobotPickupController : MonoBehaviour
     {
         ikController.ReleaseLever();
         isInteracting = false;
-        currentInteractionLever = null; 
+        currentInteractionLever = null;
         nearbyLever = null;
     }
 
@@ -231,16 +234,16 @@ public class RobotPickupController : MonoBehaviour
     {
         Block target = GetBlockInFront();
 
-        if (target != null && target.currentState == Block.BlockState.Movable)
+        if (target != null && target.CurrentState == Block.BlockState.Movable)
         {
-            heldBlock = target;
+            HeldBlock = target;
 
-            heldRotationOffset = Quaternion.Inverse(transform.rotation) * heldBlock.transform.rotation;
+            heldRotationOffset = Quaternion.Inverse(transform.rotation) * HeldBlock.transform.rotation;
 
             canMoveBlock = false;
 
             animator.SetTrigger("Pickup");
-            GetComponent<RobotController>().isHoldingBlock = true;
+            GetComponent<RobotController>().IsHoldingBlock = true;
 
             if (previewInstance != null)
                 previewInstance.SetActive(false);
@@ -249,44 +252,43 @@ public class RobotPickupController : MonoBehaviour
 
     public void DropBlock()
     {
-        if (heldBlock == null) return;
+        if (HeldBlock == null) return;
 
         Vector3 previewPos;
         bool isValid;
-        snappingSystem.GetPlacementInfo(heldBlock.transform.position, out previewPos, out isValid);
+        snappingSystem.GetPlacementInfo(HeldBlock.transform.position, out previewPos, out isValid);
 
         if (!isValid)
         {
             animator.SetTrigger("No");
-            return; 
+            return;
         }
         animator.SetTrigger("Place");
     }
 
     void MoveHeldBlock()
     {
-        heldBlock.transform.position = holdPoint.position;
-        heldBlock.transform.rotation = transform.rotation * heldRotationOffset;
+        HeldBlock.transform.position = holdPoint.position;
+        HeldBlock.transform.rotation = transform.rotation * heldRotationOffset;
     }
 
     void UpdatePlacementPreview()
     {
-        if (previewInstance == null || snappingSystem == null || heldBlock == null) return;
+        if (previewInstance == null || snappingSystem == null || HeldBlock == null) return;
 
         Vector3 previewPos;
         bool isValid;
 
-        snappingSystem.GetPlacementInfo(heldBlock.transform.position, out previewPos, out isValid);
+        snappingSystem.GetPlacementInfo(HeldBlock.transform.position, out previewPos, out isValid);
 
         previewInstance.transform.position = previewPos;
-        previewInstance.transform.rotation = heldBlock.transform.rotation;
+        previewInstance.transform.rotation = HeldBlock.transform.rotation;
 
         if (previewMaterial != null)
         {
             Color previewColor = isValid ? validColor : invalidColor;
             previewColor.a = previewAlpha;
             previewMaterial.color = previewColor;
-
         }
 
         previewInstance.SetActive(true);
@@ -326,7 +328,7 @@ public class RobotPickupController : MonoBehaviour
         foreach (RaycastHit hit in hits)
         {
             Block block = hit.collider.GetComponent<Block>();
-            if (block != null && !block.isBeingHeld)
+            if (block != null && !block.IsBeingHeld)
             {
                 float y = block.transform.position.y;
                 if (y > highestY)
@@ -347,18 +349,18 @@ public class RobotPickupController : MonoBehaviour
 
     public void AnimationEvent_GrabBlock()
     {
-        if (heldBlock != null)
+        if (HeldBlock != null)
         {
             if (SoundController.Instance != null)
                 SoundController.Instance.PlayPickupSound();
 
-            heldBlock.OnPickup();
-            GetComponent<RobotController>().isHoldingBlock = true;
+            HeldBlock.OnPickup();
+            GetComponent<RobotController>().IsHoldingBlock = true;
             animator.SetBool("isHolding", true);
 
             canMoveBlock = true;
 
-            heldBlockColliders = heldBlock.GetComponentsInChildren<Collider>();
+            heldBlockColliders = HeldBlock.GetComponentsInChildren<Collider>();
             Collider robotCollider = GetComponent<Collider>();
 
             foreach (Collider blockCollider in heldBlockColliders)
@@ -377,7 +379,7 @@ public class RobotPickupController : MonoBehaviour
 
     public void AnimationEvent_ReleaseBlock()
     {
-        if (heldBlock != null && heldBlockColliders != null)
+        if (HeldBlock != null && heldBlockColliders != null)
         {
             Collider robotCollider = GetComponent<Collider>();
 
@@ -394,7 +396,7 @@ public class RobotPickupController : MonoBehaviour
 
             Vector3 previewPos;
             bool isValid;
-            snappingSystem.GetPlacementInfo(heldBlock.transform.position, out previewPos, out isValid);
+            snappingSystem.GetPlacementInfo(HeldBlock.transform.position, out previewPos, out isValid);
 
             if (!isValid)
             {
@@ -403,16 +405,16 @@ public class RobotPickupController : MonoBehaviour
                 return;
             }
 
-            bool placed = snappingSystem.TryPlace(heldBlock, heldBlock.transform.position);
+            bool placed = snappingSystem.TryPlace(HeldBlock, HeldBlock.transform.position);
 
             if (placed)
             {
                 if (SoundController.Instance != null)
                     SoundController.Instance.PlayPlaceSound();
 
-                heldBlock = null;
+                HeldBlock = null;
                 canMoveBlock = false;
-                GetComponent<RobotController>().isHoldingBlock = false;
+                GetComponent<RobotController>().IsHoldingBlock = false;
                 animator.SetBool("isHolding", false);
 
                 if (previewInstance != null)
@@ -425,11 +427,10 @@ public class RobotPickupController : MonoBehaviour
         }
     }
 
-    //public void AnimationEvent_PickupComplete()
-    //{
-    //    Debug.Log("Pickup animation complete");
-    //}
-
+    // public void AnimationEvent_PickupComplete()
+    // {
+    //     Debug.Log("Pickup animation complete");
+    // }
 }
 
 

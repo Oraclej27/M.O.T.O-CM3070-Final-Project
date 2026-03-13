@@ -1,3 +1,12 @@
+// =============================================
+// Script: BallController.cs
+// Purpose: Maintains constant speed of the ball, adds slight randomness on wall bounces. 
+//
+// Communicates with:
+//   - BallSpawner: Calls OnBallDespawned() when ball enters a tube (WinTube/LoseTube/Pipe).
+//
+// Usage: Attached to the ball prefab.
+// =============================================
 using UnityEngine;
 
 public class BallController : MonoBehaviour

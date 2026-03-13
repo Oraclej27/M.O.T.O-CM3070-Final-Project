@@ -1,3 +1,13 @@
+// =============================================
+// Script: MainMenuController.cs
+// Purpose: Controls the main menu UI.
+//
+// Communicates with:
+//   - SceneManager: Loads game levels and tutorial.
+//   - AudioSource: Plays hover, click, and switch panel sounds.
+//
+// Usage: Attached to a persistent GameObject in the main menu scene. 
+// =============================================
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;

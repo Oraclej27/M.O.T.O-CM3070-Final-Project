@@ -1,26 +1,43 @@
+// =============================================
+// Script: Lever.cs
+// Purpose: Represents a pullable lever. Plays animation, invokes UnityEvent
+//
+// Communicates with:
+//   - RobotIKController: Provides handTarget for IK grabbing.
+//   - RobotPickupController: Called via PullLever() from animation event.
+//   - BoxContainer: Triggers OpenContainer(). 
+//
+// Usage: Attached to lever GameObject.
+// =============================================
 using UnityEngine;
 using UnityEngine.Events;
 
 public class Lever : MonoBehaviour
 {
     [Header("Lever Settings")]
-    public Transform handTarget; 
-    public float interactionRange = 2f;
-    public LayerMask robotLayer;
+    [SerializeField] private Transform handTarget;
+    [SerializeField] private float interactionRange = 2f;
+    [SerializeField] private LayerMask robotLayer;
 
     [Header("Animation")]
-    public Animator leverAnimator;
-    public string pullTriggerName = "Pull";
-    public string resetTriggerName = "Reset";
+    [SerializeField] private Animator leverAnimator;
+    [SerializeField] private string pullTriggerName = "Pull";
+    //[SerializeField] private string resetTriggerName = "Reset";
 
     [Header("Events")]
-    public UnityEvent onLeverPulled;
+    [SerializeField] private UnityEvent onLeverPulled;
 
     [Header("IK Hint")]
-    public Transform elbowHint; 
+    [SerializeField] private Transform elbowHint;
 
     [Header("Box Connection")]
-    public BoxContainer targetBox;
+    [SerializeField] private BoxContainer targetBox;
+
+    // Public properties .. read only
+    public Transform HandTarget => handTarget;
+    public float InteractionRange => interactionRange;
+    public LayerMask RobotLayer => robotLayer;
+    public Transform ElbowHint => elbowHint;
 
     private bool isPulled = false;
 
@@ -42,7 +59,7 @@ public class Lever : MonoBehaviour
     {
         if (targetBox != null)
         {
-            targetBox.OpenContainer(); 
+            targetBox.OpenContainer();
         }
         else
         {

@@ -1,3 +1,14 @@
+// =============================================
+// Script: PauseMenu.cs
+// Purpose: Controls the pause menu UI, including sub-panels. 
+//
+// Communicates with:
+//   - SoundController: Calls PauseMusic() and ResumeMusic().
+//   - TutorialCanvas: Disables/enables tutorial panel when paused.
+//   - SceneManager: Loads main menu or restarts level.
+//
+// Usage: Attached to a GameManager. 
+// =============================================
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;

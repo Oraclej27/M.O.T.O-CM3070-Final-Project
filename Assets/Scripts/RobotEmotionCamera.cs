@@ -1,3 +1,12 @@
+// =============================================
+// Script: RobotEmotionCamera.cs
+// Purpose: Controls the camera that follows the robot, with special focus during emotional states and screen shake effects.
+//
+// Communicates with:
+//   - RobotController: Called via FocusOnEmotion() and Shake() when robot experiences emotional events.
+//
+// Usage: Attached to the main camera GameObject, uses robot and faceTarget references.
+// =============================================
 using UnityEngine;
 using System.Collections;
 
@@ -14,12 +23,13 @@ public class RobotEmotionCamera : MonoBehaviour
     }
 
     [Header("References")]
-    public Transform robot;
-    public Transform faceTarget;
+    [SerializeField] private Transform robot;
+    [SerializeField] private Transform faceTarget;
 
     [Header("Camera States")]
-    public CameraState normalState = new CameraState();
-    public CameraState emotionState = new CameraState()
+    [SerializeField] private CameraState normalState = new CameraState();
+    [SerializeField]
+    private CameraState emotionState = new CameraState()
     {
         offset = new Vector3(0, 1.6f, 2.2f),
         positionSmooth = 12f,
@@ -29,18 +39,18 @@ public class RobotEmotionCamera : MonoBehaviour
     };
 
     [Header("Zoom")]
-    public float zoomSpeed = 2f;
-    public float minZoom = -5f;
-    public float maxZoom = -1.5f;
+    [SerializeField] private float zoomSpeed = 2f;
+    [SerializeField] private float minZoom = -5f;
+    [SerializeField] private float maxZoom = -1.5f;
 
     [Header("Recenter")]
-    public float recenterSpeed = 4f;
-    public bool autoRecenter = false;
-    public float autoRecenterDelay = 2f;
+    [SerializeField] private float recenterSpeed = 4f;
+    [SerializeField] private bool autoRecenter = false;
+    [SerializeField] private float autoRecenterDelay = 2f;
 
     [Header("Shake")]
-    public float shakeDuration = 0.2f;
-    public float shakeStrength = 0.15f;
+    [SerializeField] private float shakeDuration = 0.2f;
+    [SerializeField] private float shakeStrength = 0.15f;
 
     private Camera cam;
     private float currentZoom;
@@ -106,7 +116,7 @@ public class RobotEmotionCamera : MonoBehaviour
 
         if (isEmotionFocus && faceTarget)
         {
-            Quaternion faceRotation = Quaternion.LookRotation(-robot.forward); 
+            Quaternion faceRotation = Quaternion.LookRotation(-robot.forward);
             offset = faceRotation * offset;
             return faceTarget.position + offset;
         }
@@ -148,7 +158,7 @@ public class RobotEmotionCamera : MonoBehaviour
 
     void UpdateZoom()
     {
-        if (isEmotionFocus) return; 
+        if (isEmotionFocus) return;
 
         float scroll = Input.mouseScrollDelta.y;
         if (Mathf.Abs(scroll) > 0.01f)
@@ -185,7 +195,7 @@ public class RobotEmotionCamera : MonoBehaviour
     public void FocusOnEmotion(float customDuration = 0f)
     {
         isEmotionFocus = true;
-        emotionFocusTimer = customDuration > 0 ? customDuration : 1.5f; 
+        emotionFocusTimer = customDuration > 0 ? customDuration : 1.5f;
 
         positionVelocity = Vector3.zero;
         rotationVelocity = Quaternion.identity;

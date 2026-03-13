@@ -1,8 +1,8 @@
+// only in case I need additional despawn triggers 
 using UnityEngine;
 
 public class BallDespawn : MonoBehaviour
 {
-    // only in case I need additional despawn triggers 
 
     void OnTriggerEnter(Collider other)
     {

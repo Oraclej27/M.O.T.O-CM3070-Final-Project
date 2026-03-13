@@ -1,3 +1,13 @@
+// =============================================
+// Script: TutorialManager.cs
+// Purpose: Manages the display of tutorial messages on a UI panel.
+//
+// Communicates with:
+//   - TutorialTrigger: Receives messages via ShowMessage().
+//   - UI Button: Skip button subscribes to SkipTutorial().
+//
+// Usage: Attached to a persistent GameObject ( GameManager)
+// =============================================
 using UnityEngine;
 using UnityEngine.UI;
 using System.Collections;

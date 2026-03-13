@@ -1,3 +1,13 @@
+// =============================================
+// Script: RobotIKController.cs
+// Purpose: Controls IK for the robot's right hand.
+//
+// Communicates with:
+//   - RobotPickupController: Called via GrabLever() and ReleaseLever().
+//   - Lever: Reads handTarget and position hand correctly.
+//
+// Usage: Attached to the robot GameObject, uses Animator with IK pass.
+// =============================================
 using UnityEngine;
 
 public class RobotIKController : MonoBehaviour
@@ -49,7 +59,7 @@ public class RobotIKController : MonoBehaviour
     {
         currentLever = lever;
 
-        rightHandTarget = lever.handTarget;
+        rightHandTarget = lever.HandTarget;
         lookAtTarget = lever.transform;
 
         useIK = true;
