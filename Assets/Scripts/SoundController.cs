@@ -1,3 +1,14 @@
+// =============================================
+// Script: SoundController.cs
+// Purpose: Audio manager for the game. Persists across scenes.
+//
+// Communicates with:
+//   - All gameplay scripts: Provides public methods like PlayPickupSound(), PlayBumpSound(), etc.
+//   - LevelMusic: Finds LevelMusic component in each scene to change background music.
+//   - RobotController: Receives movement state via SetMoving() to control rolling sound.
+//
+// Usage: Attached to a persistent GameObject.
+// =============================================
 using UnityEngine;
 using System.Collections;
 

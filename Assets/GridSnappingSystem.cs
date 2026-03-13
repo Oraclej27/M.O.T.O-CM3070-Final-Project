@@ -1,9 +1,19 @@
+// =============================================
+// Script: GridSnappingSystem.cs
+// Purpose: Provides grid-based snapping for block placement and preview. 
+//
+// Communicates with:
+//   - RobotPickupController: Called via TryPlace() and GetPlacementInfo().
+//   - Block: Accesses IsBeingHeld property to ignore held blocks during placement checks.
+//
+// Usage: Attached to an empty GameObject in GameManager prefab
+// =============================================
 using UnityEngine;
 
 public class GridSnappingSystem : MonoBehaviour
 {
-    public float gridSize = 1f;
-    public LayerMask blockLayer;
+    [SerializeField] private float gridSize = 1f;
+    [SerializeField] private LayerMask blockLayer;
 
     public Vector3 GetSnappedPosition(Vector3 position)
     {
@@ -114,7 +124,7 @@ public class GridSnappingSystem : MonoBehaviour
         {
             Block hitBlock = hit.collider.GetComponent<Block>();
 
-            if (hitBlock != null && hitBlock.isBeingHeld)
+            if (hitBlock != null && hitBlock.IsBeingHeld)
                 continue;
 
             Collider col = hit.collider;
@@ -146,10 +156,9 @@ public class GridSnappingSystem : MonoBehaviour
         foreach (Collider col in blocksAtPos)
         {
             Block b = col.GetComponent<Block>();
-            if (b != null && !b.isBeingHeld)
+            if (b != null && !b.IsBeingHeld)
             {
                 isValid = false;
-
                 break;
             }
         }

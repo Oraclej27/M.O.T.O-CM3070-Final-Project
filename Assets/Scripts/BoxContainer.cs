@@ -1,3 +1,13 @@
+// =============================================
+// Script: BoxContainer.cs
+// Purpose: Controls a container that drops blocks when opened. Manages lid physics, camera switch, and camera animation.
+//
+// Communicates with:
+//   - Lever: TriggerBoxOpen() is called from Lever to start the sequence.
+//   - CameraAnimationEvents: OnCameraAnimationComplete() is called when camera animation finishes to switch back to main camera.
+//
+// Usage: Attached to the container root GameObject. Uses lid Rigidbody, hinge joint, and camera references.
+// =============================================
 using UnityEngine;
 using System.Collections;
 

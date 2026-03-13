@@ -1,3 +1,13 @@
+// =============================================
+// Script: WeightPad.cs
+// Purpose: Detects objects on the pad, calculates total weight, and fires events when weight amount is met or lost.
+//
+// Communicates with:
+//   - WeightPadDoorController: Fires OnWeightMet / OnWeightLost events.
+//   - Block / RobotController: Reads their weight.
+//
+// Usage: Attached to the weight pad GameObject with solid and trigger colliders.
+// =============================================
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
@@ -8,11 +18,6 @@ public class WeightPad : MonoBehaviour
     public float requiredWeight = 3f;
     public float blockWeight = 1f;
     public float robotWeight = 3f;
-
-    [Header("Door")]
-    public Animator doorAnimator;
-    public string doorOpenTrigger = "Open";
-    public string doorCloseTrigger = "Close";
 
     [Header("Visual Feedback")]
     public Color activeColor = Color.green;
@@ -25,27 +30,27 @@ public class WeightPad : MonoBehaviour
 
     [Header("Sound Effects")]
     public AudioSource audioSource;
-    public AudioClip doorOpenSound;
-    public AudioClip doorCloseSound;
     public AudioClip weightMetSound;
     public AudioClip weightLostSound;
 
     [Header("Colliders")]
-    public Collider solidCollider;  
-    public Collider detectionTrigger; 
+    public Collider solidCollider;
+    public Collider detectionTrigger;
+
+    public event System.Action<float> OnWeightChanged; 
+    public event System.Action OnWeightMet;
+    public event System.Action OnWeightLost;
 
     private float currentWeight = 0f;
-    private bool isDoorOpen = false;
-    private List<GameObject> objectsOnPad = new List<GameObject>(); 
+    private bool wasWeightMet = false;
+    private List<GameObject> objectsOnPad = new List<GameObject>();
 
     void Start()
     {
         if (solidCollider != null)
             solidCollider.isTrigger = false;
-
         if (detectionTrigger != null)
             detectionTrigger.isTrigger = true;
-
         if (padRenderer != null)
             padRenderer.material.color = inactiveColor;
 
@@ -63,7 +68,7 @@ public class WeightPad : MonoBehaviour
     void CalculateWeight()
     {
         float totalWeight = 0f;
-        bool wasWeightMet = currentWeight >= requiredWeight;
+        bool weightMetNow = false;
 
         HashSet<GameObject> countedObjects = new HashSet<GameObject>();
 
@@ -92,27 +97,30 @@ public class WeightPad : MonoBehaviour
             }
         }
 
-        currentWeight = totalWeight;
-        UpdateWeightDisplay();
+        weightMetNow = totalWeight >= requiredWeight;
 
-        bool weightMet = currentWeight >= requiredWeight;
-
-        if (padRenderer != null)
+        if (Mathf.Abs(totalWeight - currentWeight) > 0.001f)
         {
-            padRenderer.material.color = weightMet ? activeColor : inactiveColor;
+            currentWeight = totalWeight;
+            UpdateWeightDisplay();
+            OnWeightChanged?.Invoke(currentWeight);
         }
 
-        if (weightMet && !isDoorOpen)
+        if (weightMetNow && !wasWeightMet)
         {
-            OpenDoor();
-            if (!wasWeightMet)
-                PlaySound(weightMetSound);
+            wasWeightMet = true;
+            OnWeightMet?.Invoke();
+            if (padRenderer != null)
+                padRenderer.material.color = activeColor;
+            PlaySound(weightMetSound);
         }
-        else if (!weightMet && isDoorOpen)
+        else if (!weightMetNow && wasWeightMet)
         {
-            CloseDoor();
-            if (wasWeightMet)
-                PlaySound(weightLostSound);
+            wasWeightMet = false;
+            OnWeightLost?.Invoke();
+            if (padRenderer != null)
+                padRenderer.material.color = inactiveColor;
+            PlaySound(weightLostSound);
         }
     }
 
@@ -120,7 +128,6 @@ public class WeightPad : MonoBehaviour
     {
         RaycastHit hit;
         Vector3 rayStart = obj.transform.position;
-
         Collider objCollider = obj.GetComponent<Collider>();
         if (objCollider != null)
         {
@@ -134,54 +141,27 @@ public class WeightPad : MonoBehaviour
 
             Block hitBlock = hit.collider.GetComponent<Block>();
             if (hitBlock != null)
-            {
                 return FindRootObjectOnPad(hitBlock.gameObject);
-            }
         }
-
         return null;
     }
 
     void OnTriggerEnter(Collider other)
     {
-        if (other.gameObject == detectionTrigger.gameObject) return;
-
-        if (other == solidCollider) return;
+        if (other.gameObject == detectionTrigger.gameObject || other == solidCollider)
+            return;
 
         if (!objectsOnPad.Contains(other.gameObject))
-        {
             objectsOnPad.Add(other.gameObject);
-        }
     }
 
     void OnTriggerExit(Collider other)
     {
-        if (other.gameObject == detectionTrigger.gameObject) return;
-
-        if (other == solidCollider) return;
+        if (other.gameObject == detectionTrigger.gameObject || other == solidCollider)
+            return;
 
         if (objectsOnPad.Contains(other.gameObject))
-        {
             objectsOnPad.Remove(other.gameObject);
-        }
-    }
-
-    void OpenDoor()
-    {
-        if (doorAnimator != null)
-            doorAnimator.SetTrigger(doorOpenTrigger);
-
-        PlaySound(doorOpenSound);
-        isDoorOpen = true;
-    }
-
-    void CloseDoor()
-    {
-        if (doorAnimator != null)
-            doorAnimator.SetTrigger(doorCloseTrigger);
-
-        PlaySound(doorCloseSound);
-        isDoorOpen = false;
     }
 
     void UpdateWeightDisplay()
@@ -196,9 +176,7 @@ public class WeightPad : MonoBehaviour
     void PlaySound(AudioClip clip)
     {
         if (audioSource != null && clip != null)
-        {
             audioSource.PlayOneShot(clip);
-        }
     }
 
     void OnDrawGizmos()
@@ -213,7 +191,6 @@ public class WeightPad : MonoBehaviour
                 Gizmos.DrawWireCube(box.center, box.size);
             }
         }
-
         if (detectionTrigger != null)
         {
             Gizmos.color = new Color(0, 1, 0, 0.3f);

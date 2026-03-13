@@ -1,3 +1,12 @@
+// =============================================
+// Script: MagnetController.cs
+// Purpose: Toggles a magnet on/off with the R key. Applies force to all MagnetizableObject within the range.
+// Communicates with:
+//   - MagnetizableObject: Finds all instances and applies force.
+//   - SoundController: Plays magnet toggle sound via static instance.
+//
+// Usage: Attached to a magnet GameObject. 
+// =============================================
 using UnityEngine;
 
 public class MagnetController : MonoBehaviour

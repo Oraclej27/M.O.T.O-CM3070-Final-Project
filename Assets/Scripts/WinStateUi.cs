@@ -1,3 +1,13 @@
+// =============================================
+// Script: WinStateUI.cs
+// Purpose: Displays win panel with buttons, and handles scene loading.
+//
+// Communicates with:
+//   - BallSpawner: Subscribes to OnWinCondition event to show win screen.
+//   - SoundController: Calls PauseMusic when win screen appears.
+//
+// Usage: Attached to the Canvas GameObject containing the win panel.
+// =============================================
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
@@ -7,25 +17,25 @@ using System.Collections.Generic;
 public class WinStateUI : MonoBehaviour
 {
     [Header("Panels")]
-    public GameObject winPanel; 
+    public GameObject winPanel;
 
     [Header("Buttons")]
     public Button nextLevelButton;
     public Button restartButton;
 
     [Header("Scene Management")]
-    public string currentLevel; 
+    public string currentLevel;
     public string nextLevelName;
-    public bool isLastLevel = false; 
+    public bool isLastLevel = false;
 
     [Header("UI References")]
-    public GameObject tutorialCanvas; 
+    public GameObject tutorialCanvas;
 
     [Header("Sounds")]
     public AudioSource audioSource;
     public AudioClip hoverSound;
     public AudioClip clickSound;
-    public AudioClip winSound; 
+    public AudioClip winSound;
 
     private GameObject lastSelected;
 
@@ -39,6 +49,23 @@ public class WinStateUI : MonoBehaviour
 
         SetupButtonLabels();
         AddHoverSoundsToAllButtons();
+
+        // subscribe 
+        BallSpawner spawner = FindFirstObjectByType<BallSpawner>();
+        if (spawner != null)
+        {
+            spawner.OnWinCondition += ShowWinScreen;
+        }
+    }
+
+    void OnDestroy()
+    {
+        //  to help avoid memory leaks
+        BallSpawner spawner = FindFirstObjectByType<BallSpawner>();
+        if (spawner != null)
+        {
+            spawner.OnWinCondition -= ShowWinScreen;
+        }
     }
 
     void SetupButtonLabels()
@@ -127,7 +154,7 @@ public class WinStateUI : MonoBehaviour
     {
         if (tutorialCanvas != null)
             tutorialCanvas.SetActive(false);
-     
+
         Time.timeScale = 0f;
         winPanel.SetActive(true);
 
@@ -143,7 +170,7 @@ public class WinStateUI : MonoBehaviour
             PlaySwitchPanelSound();
 
         if (SoundController.Instance != null)
-            SoundController.Instance.PauseMusic(); 
+            SoundController.Instance.PauseMusic();
     }
 
     public void OnNextLevel()
@@ -160,7 +187,7 @@ public class WinStateUI : MonoBehaviour
     public void OnRestartLevel()
     {
         PlayClickSound();
-        Time.timeScale = 1f; 
+        Time.timeScale = 1f;
         SceneManager.LoadScene(currentLevel);
     }
 

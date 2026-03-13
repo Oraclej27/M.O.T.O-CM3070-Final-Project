@@ -1,3 +1,12 @@
+// =============================================
+// Script: MovingPlatform.cs
+// Purpose: Moves a platform back and forth between two points. Automatically moves any CharacterController standing on top.
+//
+// Communicates with:
+//   - CharacterController: Detects and moves player when on platform by checking bounds.
+//
+// Usage: Attached to a platform GameObject with a BoxCollider.
+// =============================================
 using UnityEngine;
 
 public class MovingPlatform : MonoBehaviour

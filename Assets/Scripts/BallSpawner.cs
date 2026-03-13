@@ -1,3 +1,13 @@
+// =============================================
+// Script: BallSpawner.cs
+// Purpose: Spawns balls and detects win/lose conditions through tube tags.
+//
+// Communicates with:
+//   - BallController: Sets spawner reference so ball can inform despawn.
+//   - WinStateUI: Fires OnWinCondition event when ball enters win tube.
+//
+// Usage: Attached to an empty GameObject at the spawn tube exit.
+// =============================================
 using UnityEngine;
 using System.Collections;
 
@@ -9,15 +19,14 @@ public class BallSpawner : MonoBehaviour
     public float respawnDelay = 3f;
 
     [Header("Tubes")]
-    public Transform spawnTube; 
+    public Transform spawnTube;
     public string winTubeTag = "WinTube";
     public string loseTubeTag = "LoseTube";
 
-    [Header("Win State UI")]
-    public WinStateUI winStateUI;
-
     [Header("Level Complete")]
-    public string nextLevelName;
+    public string nextLevelName;   
+
+    public event System.Action OnWinCondition;
 
     private GameObject currentBall;
     private bool isGameComplete = false;
@@ -65,8 +74,8 @@ public class BallSpawner : MonoBehaviour
             currentBall = null;
             Debug.Log(" YOU WIN! Level Complete!");
 
-            if (winStateUI != null)
-                winStateUI.ShowWinScreen();
+            // fired event 
+            OnWinCondition?.Invoke();
         }
         else if (tubeTag == loseTubeTag)
         {

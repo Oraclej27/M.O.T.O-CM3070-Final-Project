@@ -1,3 +1,13 @@
+// =============================================
+// Script: TutorialTrigger.cs
+// Purpose: Displays a tutorial message when the player enters a trigger zone. 
+//
+// Communicates with:
+//   - TutorialManager: Calls ShowMessage() to display the tutorial text.
+//   - RobotController: Detects player via tag.
+//
+// Usage: Attached to trigger colliders placed at tutorial spots.
+// =============================================
 using UnityEngine;
 using UnityEngine.UI;
 using System.Collections;

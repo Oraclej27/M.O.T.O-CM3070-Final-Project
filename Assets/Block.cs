@@ -1,3 +1,14 @@
+// =============================================
+// Script: Block.cs
+// Purpose: Represents a block that can be movable or immovable,  Handles physics state, and connection detection.
+//
+// Communicates with:
+//   - RobotPickupController: Called via OnPickup() and OnPlaced() when block is grabbed/released.
+//   - SoundController: Plays toggle state sound via static instance.
+//   - WeightPad: Provides blockWeight for weight calculations via component reference.
+//
+// Usage: Attached to every block prefab 
+// =============================================
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -5,20 +16,36 @@ using UnityEngine;
 public class Block : MonoBehaviour
 {
     [Header("Block Settings")]
-    public BlockType blockType = BlockType.Cube;
-    public BlockState currentState = BlockState.Movable;
-    public float blockWeight = 1.0f;
+#pragma warning disable 0414
+    [SerializeField] private BlockType blockType = BlockType.Cube;
+#pragma warning restore 0414
+    [SerializeField] private BlockState currentState = BlockState.Movable;
+    [SerializeField] private float blockWeight = 1.0f;
 
     [Header("Visual Settings")]
-    public Renderer ledRenderer;
-    public Color movableColor = Color.green;
-    public Color immovableColor = Color.red;
-    public Color heldColor = Color.blue;
-    public float emissionIntensity = 2.0f;
+    [SerializeField] private Renderer ledRenderer;
+    [SerializeField] private Color movableColor = Color.green;
+    [SerializeField] private Color immovableColor = Color.red;
+    [SerializeField] private Color heldColor = Color.blue;
+    [SerializeField] private float emissionIntensity = 2.0f;
 
     [Header("Physics Settings")]
-    public bool isBeingHeld = false;
-    public bool isGrounded = false;
+    [SerializeField] private bool isBeingHeld = false;
+    [SerializeField] private bool isGrounded = false;
+
+    public BlockState CurrentState
+    {
+        get => currentState;
+        set => currentState = value;
+    }
+
+    public bool IsBeingHeld
+    {
+        get => isBeingHeld;
+        set => isBeingHeld = value;
+    }
+
+    public bool IsGrounded => isGrounded;
 
     private Rigidbody rb;
     private Collider blockCollider;
@@ -26,12 +53,12 @@ public class Block : MonoBehaviour
     private Color currentLEDColor;
     private SoundController soundController;
     private List<Block> connectedBlocks = new List<Block>();
-    private float connectionCheckDistance = 1.1f; 
+    private float connectionCheckDistance = 1.1f;
 
     public enum BlockState
     {
-        Movable,    
-        Immovable   
+        Movable,
+        Immovable
     }
 
     public enum BlockType
@@ -124,7 +151,7 @@ public class Block : MonoBehaviour
             rb.linearDamping = 0.5f;
             rb.angularDamping = 0.5f;
         }
-        else 
+        else
         {
             rb.isKinematic = true;
             rb.constraints = RigidbodyConstraints.FreezeAll;
@@ -198,7 +225,6 @@ public class Block : MonoBehaviour
             Gizmos.DrawRay(rayStart, Vector3.down * 0.2f);
         }
 
-        // State text
 #if UNITY_EDITOR
         UnityEditor.Handles.Label(transform.position + Vector3.up * 0.6f,
                                  currentState.ToString(),

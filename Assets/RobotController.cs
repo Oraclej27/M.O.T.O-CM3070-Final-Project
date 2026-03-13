@@ -1,45 +1,61 @@
+// =============================================
+// Script: RobotController.cs
+// Purpose: Handles robot movement, emotional states, and recovery.
+//
+// Communicates with:
+//   - RobotPickupController: Reads IsHoldingBlock property.
+//   - SoundController: Calls PlayBumpSound, PlayBallHitSound, etc.
+//   - RobotEmotionCamera: Calls FocusOnEmotion and Shake.
+//   - Rob13ColorManager / EmotionChanger: Updates visuals via SetEmotion.
+//
+// Usage: Attached to the robot GameObject.
+// =============================================
 using System.Collections;
 using UnityEngine;
 
 public class RobotController : MonoBehaviour
 {
     [Header("Movement")]
-    public float speed = 1.0f;
-    public float run = 0;
-    float runVelocity = 1f;
-    private float verticalVelocity;
-    public float gravity = -20f;
-    public float groundStickForce = -2f;
+    [SerializeField] private float speed = 1.0f;
+    [SerializeField] private float gravity = -20f;
+    [SerializeField] private float groundStickForce = -2f;
 
     [Header("Weight")]
-    public float robotWeight = 3f; 
-
+#pragma warning disable 0414
+    [SerializeField] private float robotWeight = 3f;
+#pragma warning disable 0414
 
     [Header("Debug / Collision")]
     [SerializeField] private int bumpCount;
     [SerializeField] private int ballHitCount;
-    [SerializeField] float ballHitCooldownTime = 1.0f;
-    float ballHitCooldown;
-
+    [SerializeField] private float ballHitCooldownTime = 1.0f;
     [SerializeField] private float bumpCooldownTime = 0.5f;
-    private float bumpCooldown;
 
     [Header("References")]
-    public Rob13ColorManager robotColorManager;
-    public EmotionChanger emotionChanger;
-    public RobotEmotionCamera cameraController;
+    [SerializeField] private Rob13ColorManager robotColorManager;
+    [SerializeField] private EmotionChanger emotionChanger;
+    [SerializeField] private RobotEmotionCamera cameraController;
 
     [Header("Animation Repeat")]
-    public int playCount = 1;
+    [SerializeField] private int playCount = 1;
 
     [Header("Animation Timing")]
-    public float hitAnimationDuration = 0.6f;
-    public float angerDuration = 2.0f;
-    public bool isHoldingBlock = false;
+    [SerializeField] private float hitAnimationDuration = 0.6f;
+    [SerializeField] private float angerDuration = 2.0f;
 
     [Header("Recovery UI")]
-    public GameObject recoveryPrompt; 
-    public float promptDisplayDelay = 1f;
+    [SerializeField] private GameObject recoveryPrompt;
+    [SerializeField] private float promptDisplayDelay = 1f;
+
+    private bool _isHoldingBlock;
+    public bool IsHoldingBlock
+    {
+        get => _isHoldingBlock;
+        set
+        {
+            _isHoldingBlock = value;
+        }
+    }
 
     private Animator anim;
     private CharacterController controller;
@@ -50,10 +66,16 @@ public class RobotController : MonoBehaviour
     private Coroutine promptCoroutine;
     private bool applyCollapseGravity = false;
     private Vector3 gravityVelocity = Vector3.zero;
-    private const float GRAVITY_FORCE = 20f; 
+    private const float GRAVITY_FORCE = 20f;
     private RobotState currentState = RobotState.Normal;
 
-    enum RobotState
+    private float run;
+    private float runVelocity = 1f;
+    private float verticalVelocity;
+    private float ballHitCooldown;
+    private float bumpCooldown;
+
+    private enum RobotState
     {
         Normal,
         Angry,
@@ -75,7 +97,6 @@ public class RobotController : MonoBehaviour
     void Update()
     {
         HandleMovement();
-        //HandleJump();
 
         if (ballHitCooldown > 0f)
             ballHitCooldown -= Time.deltaTime;
@@ -92,7 +113,7 @@ public class RobotController : MonoBehaviour
             }
         }
 
-        // Strafe 
+        // Strafe inputs
         if (Input.GetKeyDown(KeyCode.Q))
             anim.SetBool("StrafeLeft", true);
         if (Input.GetKeyUp(KeyCode.Q))
@@ -107,10 +128,8 @@ public class RobotController : MonoBehaviour
         {
             ApplyCollapseGravity();
         }
-
     }
 
-    // Gravity during collapsed state in air
     void ApplyCollapseGravity()
     {
         if (controller.isGrounded)
@@ -121,7 +140,6 @@ public class RobotController : MonoBehaviour
         }
 
         gravityVelocity += Physics.gravity * GRAVITY_FORCE * Time.deltaTime;
-
         controller.Move(gravityVelocity * Time.deltaTime);
     }
 
@@ -146,7 +164,7 @@ public class RobotController : MonoBehaviour
         if (controller.isGrounded)
         {
             if (verticalVelocity < 0)
-                verticalVelocity = groundStickForce; // slopes
+                verticalVelocity = groundStickForce;
         }
         else
         {
@@ -155,30 +173,22 @@ public class RobotController : MonoBehaviour
 
         move *= speed;
 
-        if (Input.GetKey(KeyCode.LeftShift) && run < 1) 
-           run += Time.deltaTime * runVelocity; 
+        if (Input.GetKey(KeyCode.LeftShift) && run < 1)
+            run += Time.deltaTime * runVelocity;
         else if (run > 0)
-           run -= Time.deltaTime * runVelocity; 
+            run -= Time.deltaTime * runVelocity;
 
         anim.SetFloat("run", run);
 
         Vector3 finalMove = move + Vector3.up * verticalVelocity;
-
         controller.Move(finalMove * Time.deltaTime);
 
         bool moving = Mathf.Abs(horizontal) > 0.1f || Mathf.Abs(vertical) > 0.1f;
-        float currentSpeed = Mathf.Abs(vertical) * speed; 
-        float maxSpeed = speed; 
+        float currentSpeed = Mathf.Abs(vertical) * speed;
+        float maxSpeed = speed;
         if (soundController != null)
             soundController.SetMoving(moving && controller.isGrounded, currentSpeed, maxSpeed);
     }
-
-
-    //void HandleJump()
-    //{
-    //    if (Input.GetKeyDown(KeyCode.Space) && currentState == RobotState.Normal && !isDancing)
-    //        anim.SetBool("Jump", true);
-    //}
 
     private void OnControllerColliderHit(ControllerColliderHit hit)
     {
@@ -202,7 +212,7 @@ public class RobotController : MonoBehaviour
 
     public void RegisterBump()
     {
-        if (currentState == RobotState.Fallen || isDancing || isHoldingBlock)
+        if (currentState == RobotState.Fallen || isDancing || IsHoldingBlock)
             return;
 
         if (soundController != null)
@@ -218,7 +228,7 @@ public class RobotController : MonoBehaviour
     {
         anim.SetBool("Hit", true);
         anim.SetInteger("vary", GetNextNumber(3));
-        setEmotion(0);
+        SetEmotion(0);
 
         yield return new WaitForSeconds(hitAnimationDuration);
         anim.SetBool("Hit", false);
@@ -230,7 +240,7 @@ public class RobotController : MonoBehaviour
 
             cameraController.FocusOnEmotion();
             anim.SetBool("Angry", true);
-            setEmotion(7);
+            SetEmotion(7);
             bumpCount = 0;
             currentState = RobotState.Angry;
 
@@ -238,7 +248,7 @@ public class RobotController : MonoBehaviour
 
             anim.SetBool("Angry", false);
             currentState = RobotState.Normal;
-            setEmotion(0);
+            SetEmotion(0);
         }
     }
 
@@ -280,8 +290,8 @@ public class RobotController : MonoBehaviour
 
         cameraController.Shake();
         animationName = "Dance1";
-        robotColorManager.isRainbowCycles = true;
-        setEmotion(8);
+        robotColorManager.IsRainbowCycles = true;
+        SetEmotion(8);
 
         if (soundController != null)
             soundController.PlayDanceSound();
@@ -294,7 +304,7 @@ public class RobotController : MonoBehaviour
     {
         anim.SetBool("Hit", true);
         anim.SetInteger("vary", GetNextNumber(3));
-        setEmotion(0);
+        SetEmotion(0);
 
         yield return new WaitForSeconds(hitAnimationDuration);
         anim.SetBool("Hit", false);
@@ -310,14 +320,14 @@ public class RobotController : MonoBehaviour
         cameraController.Shake();
         cameraController.FocusOnEmotion();
         anim.SetBool("Cry", true);
-        setEmotion(8);
+        SetEmotion(8);
         currentState = RobotState.Crying;
 
         yield return new WaitForSeconds(2.0f);
 
         anim.SetBool("Cry", false);
         currentState = RobotState.Normal;
-        setEmotion(0);
+        SetEmotion(0);
     }
 
     void ThirdHitFallWithGravity()
@@ -326,11 +336,11 @@ public class RobotController : MonoBehaviour
             soundController.PlayFallSound();
 
         RobotPickupController pickup = GetComponent<RobotPickupController>();
-        if (pickup != null && pickup.heldBlock != null)
+        if (pickup != null && pickup.HeldBlock != null)   
         {
             pickup.DropBlock();
         }
-  
+
         if (isDancing)
         {
             CleanUpDance();
@@ -347,7 +357,7 @@ public class RobotController : MonoBehaviour
         if (!controller.isGrounded)
         {
             applyCollapseGravity = true;
-            gravityVelocity = Vector3.zero; 
+            gravityVelocity = Vector3.zero;
 
             StartCoroutine(MonitorGroundingDuringCollapse());
         }
@@ -357,7 +367,7 @@ public class RobotController : MonoBehaviour
         }
 
         anim.SetBool("FallBack", true);
-        setEmotion(5);
+        SetEmotion(5);
         currentState = RobotState.Fallen;
 
         if (promptCoroutine != null)
@@ -403,29 +413,27 @@ public class RobotController : MonoBehaviour
         if (!isDancing) return;
 
         anim.SetBool("Dance1", false);
-        robotColorManager.isRainbowCycles = false;
-        resetEmo();
+        robotColorManager.IsRainbowCycles = false;
+        ResetEmo();
         isDancing = false;
     }
 
-    // Emotions 
-    public void setEmotion(int emoNumber)
+    public void SetEmotion(int emoNumber)
     {
         robotColorManager.ChangeBodyColor(emoNumber);
         emotionChanger.SetEmotionEyes(emoNumber);
         emotionChanger.SetEmotionMouth(emoNumber);
     }
 
-    void resetEmo()
+    void ResetEmo()
     {
-        setEmotion(0);
+        SetEmotion(0);
         anim.SetBool("reset", true);
     }
 
     IEnumerator RecoverFromFallen()
     {
         HideRecoveryPrompt();
-
         yield return new WaitForSeconds(2.0f);
 
         if (!anim.GetBool("FallBack"))
@@ -453,7 +461,7 @@ public class RobotController : MonoBehaviour
         currentState = RobotState.Normal;
         ballHitCount = 0;
         bumpCount = 0;
-        setEmotion(0);
+        SetEmotion(0);
         isDancing = false;
 
         if (!controller.isGrounded)
@@ -487,7 +495,7 @@ public class RobotController : MonoBehaviour
             if (Physics.Raycast(transform.position, Vector3.down, out RaycastHit hit, 100f))
             {
                 Vector3 groundPos = hit.point;
-                groundPos.y += 0.05f; 
+                groundPos.y += 0.05f;
                 transform.position = groundPos;
             }
         }
@@ -506,6 +514,7 @@ public class RobotController : MonoBehaviour
         if (recoveryPrompt != null)
             recoveryPrompt.SetActive(false);
     }
+
     // Utility ----
     int currentNumber = 0;
     public int GetNextNumber(int N)
