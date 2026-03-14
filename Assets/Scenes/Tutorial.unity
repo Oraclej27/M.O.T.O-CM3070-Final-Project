@@ -2462,7 +2462,6 @@ MonoBehaviour:
   spawnTube: {fileID: 643007137}
   winTubeTag: WinTube
   loseTubeTag: LoseTube
-  winStateUI: {fileID: 1721830307}
   nextLevelName: Level1
 --- !u!114 &668069250 stripped
 MonoBehaviour:
@@ -3937,7 +3936,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   tutorialMessage: Ramps can also be moved. Try stacking 3 blocks.
-  displayTime: 8
+  displayTime: 10
   showOnce: 0
   optionalKeyToPress: 0
   tutorialText: {fileID: 0}
@@ -6471,6 +6470,89 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 5d1b756973d9b43979538efa15d96725, type: 3}
+--- !u!21 &1334595778
+Material:
+  serializedVersion: 8
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: BlocksLED
+  m_Shader: {fileID: 46, guid: 0000000000000000f000000000000000, type: 0}
+  m_Parent: {fileID: 0}
+  m_ModifiedSerializedProperties: 0
+  m_ValidKeywords:
+  - _EMISSION
+  m_InvalidKeywords: []
+  m_LightmapFlags: 2
+  m_EnableInstancingVariants: 0
+  m_DoubleSidedGI: 0
+  m_CustomRenderQueue: -1
+  stringTagMap: {}
+  disabledShaderPasses: []
+  m_LockedProperties: 
+  m_SavedProperties:
+    serializedVersion: 3
+    m_TexEnvs:
+    - _BumpMap:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _DetailAlbedoMap:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _DetailMask:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _DetailNormalMap:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _EmissionMap:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _MainTex:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _MetallicGlossMap:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _OcclusionMap:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _ParallaxMap:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    m_Ints: []
+    m_Floats:
+    - _BumpScale: 1
+    - _Cutoff: 0.5
+    - _DetailNormalMapScale: 1
+    - _DstBlend: 0
+    - _GlossMapScale: 1
+    - _Glossiness: 0.5
+    - _GlossyReflections: 1
+    - _Metallic: 0
+    - _Mode: 0
+    - _OcclusionStrength: 1
+    - _Parallax: 0.02
+    - _SmoothnessTextureChannel: 0
+    - _SpecularHighlights: 1
+    - _SrcBlend: 1
+    - _UVSec: 0
+    - _ZWrite: 1
+    m_Colors:
+    - _Color: {r: 1, g: 1, b: 1, a: 1}
+    - _EmissionColor: {r: 0, g: 2, b: 0, a: 2}
+  m_BuildTextureStacks: []
+  m_AllowLocking: 1
 --- !u!82 &1346206010 stripped
 AudioSource:
   m_CorrespondingSourceObject: {fileID: 8441626839312051261, guid: 49bbd73e413c1be4eb214f5b9c7a28fc, type: 3}
@@ -6885,89 +6967,6 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 400004, guid: 4c66d33674b19490a84d460e3d492166, type: 3}
   m_PrefabInstance: {fileID: 1223044752}
   m_PrefabAsset: {fileID: 0}
---- !u!21 &1535719821
-Material:
-  serializedVersion: 8
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_Name: BlocksLED
-  m_Shader: {fileID: 46, guid: 0000000000000000f000000000000000, type: 0}
-  m_Parent: {fileID: 0}
-  m_ModifiedSerializedProperties: 0
-  m_ValidKeywords:
-  - _EMISSION
-  m_InvalidKeywords: []
-  m_LightmapFlags: 2
-  m_EnableInstancingVariants: 0
-  m_DoubleSidedGI: 0
-  m_CustomRenderQueue: -1
-  stringTagMap: {}
-  disabledShaderPasses: []
-  m_LockedProperties: 
-  m_SavedProperties:
-    serializedVersion: 3
-    m_TexEnvs:
-    - _BumpMap:
-        m_Texture: {fileID: 0}
-        m_Scale: {x: 1, y: 1}
-        m_Offset: {x: 0, y: 0}
-    - _DetailAlbedoMap:
-        m_Texture: {fileID: 0}
-        m_Scale: {x: 1, y: 1}
-        m_Offset: {x: 0, y: 0}
-    - _DetailMask:
-        m_Texture: {fileID: 0}
-        m_Scale: {x: 1, y: 1}
-        m_Offset: {x: 0, y: 0}
-    - _DetailNormalMap:
-        m_Texture: {fileID: 0}
-        m_Scale: {x: 1, y: 1}
-        m_Offset: {x: 0, y: 0}
-    - _EmissionMap:
-        m_Texture: {fileID: 0}
-        m_Scale: {x: 1, y: 1}
-        m_Offset: {x: 0, y: 0}
-    - _MainTex:
-        m_Texture: {fileID: 0}
-        m_Scale: {x: 1, y: 1}
-        m_Offset: {x: 0, y: 0}
-    - _MetallicGlossMap:
-        m_Texture: {fileID: 0}
-        m_Scale: {x: 1, y: 1}
-        m_Offset: {x: 0, y: 0}
-    - _OcclusionMap:
-        m_Texture: {fileID: 0}
-        m_Scale: {x: 1, y: 1}
-        m_Offset: {x: 0, y: 0}
-    - _ParallaxMap:
-        m_Texture: {fileID: 0}
-        m_Scale: {x: 1, y: 1}
-        m_Offset: {x: 0, y: 0}
-    m_Ints: []
-    m_Floats:
-    - _BumpScale: 1
-    - _Cutoff: 0.5
-    - _DetailNormalMapScale: 1
-    - _DstBlend: 0
-    - _GlossMapScale: 1
-    - _Glossiness: 0.5
-    - _GlossyReflections: 1
-    - _Metallic: 0
-    - _Mode: 0
-    - _OcclusionStrength: 1
-    - _Parallax: 0.02
-    - _SmoothnessTextureChannel: 0
-    - _SpecularHighlights: 1
-    - _SrcBlend: 1
-    - _UVSec: 0
-    - _ZWrite: 1
-    m_Colors:
-    - _Color: {r: 1, g: 1, b: 1, a: 1}
-    - _EmissionColor: {r: 0, g: 2, b: 0, a: 2}
-  m_BuildTextureStacks: []
-  m_AllowLocking: 1
 --- !u!1001 &1541452760
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -7548,7 +7547,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   tutorialMessage: 'You win by directing the ball into the green tube. Try the magnet
     by the ramp. '
-  displayTime: 8
+  displayTime: 10
   showOnce: 0
   optionalKeyToPress: 0
   tutorialText: {fileID: 0}
@@ -7883,17 +7882,6 @@ Mesh:
     offset: 0
     size: 0
     path: 
---- !u!114 &1721830307 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 5322700843969081560, guid: f3ff2acd5cbe8024abfb6147d90bd2ac, type: 3}
-  m_PrefabInstance: {fileID: 7627756028396362909}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 5528c5421af2b8d4a85ae489d7690acc, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!114 &1731676284 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 8092169028614291163, guid: 4b3747d4dfb72b5468fb11b5f6fdcaf9, type: 3}
@@ -10202,6 +10190,10 @@ PrefabInstance:
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 696487646189371914, guid: 32966e444ebacb447b997f56b81d3763, type: 3}
+      propertyPath: displayTime
+      value: 10
+      objectReference: {fileID: 0}
+    - target: {fileID: 696487646189371914, guid: 32966e444ebacb447b997f56b81d3763, type: 3}
       propertyPath: tutorialMessage
       value: 'Magnet Can Be Picked Up. Place it on the Yellow marker at the top of
         the ramp. '
@@ -10219,12 +10211,20 @@ PrefabInstance:
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 2092705100802249412, guid: 32966e444ebacb447b997f56b81d3763, type: 3}
+      propertyPath: displayTime
+      value: 10
+      objectReference: {fileID: 0}
+    - target: {fileID: 2092705100802249412, guid: 32966e444ebacb447b997f56b81d3763, type: 3}
       propertyPath: tutorialMessage
       value: 'Try toggling block immovable, use F key when near the blcok. '
       objectReference: {fileID: 0}
     - target: {fileID: 2606241109659421660, guid: 32966e444ebacb447b997f56b81d3763, type: 3}
       propertyPath: showOnce
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2606241109659421660, guid: 32966e444ebacb447b997f56b81d3763, type: 3}
+      propertyPath: displayTime
+      value: 10
       objectReference: {fileID: 0}
     - target: {fileID: 2606241109659421660, guid: 32966e444ebacb447b997f56b81d3763, type: 3}
       propertyPath: tutorialMessage
@@ -10286,9 +10286,17 @@ PrefabInstance:
       propertyPath: showOnce
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 4971768421453179701, guid: 32966e444ebacb447b997f56b81d3763, type: 3}
+      propertyPath: displayTime
+      value: 10
+      objectReference: {fileID: 0}
     - target: {fileID: 5148684209890261278, guid: 32966e444ebacb447b997f56b81d3763, type: 3}
       propertyPath: showOnce
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5148684209890261278, guid: 32966e444ebacb447b997f56b81d3763, type: 3}
+      propertyPath: displayTime
+      value: 10
       objectReference: {fileID: 0}
     - target: {fileID: 5180570517009295810, guid: 32966e444ebacb447b997f56b81d3763, type: 3}
       propertyPath: pausePanel
@@ -10420,7 +10428,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8545243114889415072, guid: 32966e444ebacb447b997f56b81d3763, type: 3}
       propertyPath: displayTime
-      value: 8
+      value: 10
       objectReference: {fileID: 0}
     - target: {fileID: 8545243114889415072, guid: 32966e444ebacb447b997f56b81d3763, type: 3}
       propertyPath: tutorialMessage
@@ -10433,6 +10441,10 @@ PrefabInstance:
     - target: {fileID: 9015170525915953430, guid: 32966e444ebacb447b997f56b81d3763, type: 3}
       propertyPath: showOnce
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 9015170525915953430, guid: 32966e444ebacb447b997f56b81d3763, type: 3}
+      propertyPath: displayTime
+      value: 10
       objectReference: {fileID: 0}
     - target: {fileID: 9015170525915953430, guid: 32966e444ebacb447b997f56b81d3763, type: 3}
       propertyPath: tutorialMessage
