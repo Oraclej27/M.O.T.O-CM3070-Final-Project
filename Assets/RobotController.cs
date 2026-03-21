@@ -80,7 +80,8 @@ public class RobotController : MonoBehaviour
         Normal,
         Angry,
         Crying,
-        Fallen
+        Fallen,
+        Win
     }
 
     void Start()
@@ -92,6 +93,17 @@ public class RobotController : MonoBehaviour
 
         if (recoveryPrompt != null)
             recoveryPrompt.SetActive(false);
+
+        BallSpawner spawner = FindFirstObjectByType<BallSpawner>();
+        if (spawner != null)
+            spawner.OnWinCondition += OnWin;
+    }
+
+    void OnDestroy()
+    {
+        BallSpawner spawner = FindFirstObjectByType<BallSpawner>();
+        if (spawner != null)
+            spawner.OnWinCondition -= OnWin;
     }
 
     void Update()
@@ -142,6 +154,19 @@ public class RobotController : MonoBehaviour
         gravityVelocity += Physics.gravity * GRAVITY_FORCE * Time.deltaTime;
         controller.Move(gravityVelocity * Time.deltaTime);
     }
+
+    public void OnWin()
+    {
+        if (currentState == RobotState.Win) return;
+
+        currentState = RobotState.Win;
+
+        anim.SetTrigger("Thumb");
+
+        if (cameraController != null)
+            cameraController.FocusOnEmotion(2.0f);
+    }
+
 
     void HandleMovement()
     {

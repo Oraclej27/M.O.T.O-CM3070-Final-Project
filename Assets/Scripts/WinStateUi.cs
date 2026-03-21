@@ -155,7 +155,7 @@ public class WinStateUI : MonoBehaviour
         if (tutorialCanvas != null)
             tutorialCanvas.SetActive(false);
 
-        Time.timeScale = 0f;
+        //Time.timeScale = 0f;
         winPanel.SetActive(true);
 
         if (nextLevelButton != null && EventSystem.current != null)

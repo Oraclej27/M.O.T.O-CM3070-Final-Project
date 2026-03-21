@@ -77,22 +77,20 @@ public class WeightPad : MonoBehaviour
             if (obj == null) continue;
             if (countedObjects.Contains(obj)) continue;
 
-            GameObject rootObject = FindRootObjectOnPad(obj);
-
-            if (rootObject != null && !countedObjects.Contains(rootObject))
+            GameObject bottom = FindRootObjectOnPad(obj);
+            if (bottom != null) 
             {
-                Block block = rootObject.GetComponent<Block>();
-                RobotController robot = rootObject.GetComponent<RobotController>();
-
+                Block block = obj.GetComponent<Block>();
+                RobotController robot = obj.GetComponent<RobotController>();
                 if (block != null)
                 {
                     totalWeight += blockWeight;
-                    countedObjects.Add(rootObject);
+                    countedObjects.Add(obj);
                 }
                 else if (robot != null)
                 {
                     totalWeight += robotWeight;
-                    countedObjects.Add(rootObject);
+                    countedObjects.Add(obj);
                 }
             }
         }

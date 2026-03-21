@@ -109,7 +109,7 @@ public class GridSnappingSystem : MonoBehaviour
         }
     }
 
-    public bool GetPlacementInfo(Vector3 worldPosition, out Vector3 previewPosition, out bool isValid)
+public bool GetPlacementInfo(Vector3 worldPosition, out Vector3 previewPosition, out bool isValid)
     {
         float placeX = worldPosition.x;
         float placeZ = worldPosition.z;
